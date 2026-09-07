@@ -1,0 +1,19 @@
+{
+  "name": "meter",
+  "version": "0.1.0",
+  "description": "Plan outdoor advertising with METER: discover OOH/DOOH inventory, calculate projected audience, OTS and Reach, and prepare address programs. Requires a METER account.",
+  "author": {
+    "name": "METER",
+    "url": "https://meter.ad"
+  },
+  "homepage": "https://meter.ad",
+  "repository": "https://github.com/GEOMOTIVE/meter-claude-plugin",
+  "keywords": [
+    "ooh",
+    "dooh",
+    "media-planning",
+    "audience",
+    "reach",
+    "ots"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "meter-plugins",
+  "owner": {
+    "name": "METER",
+    "url": "https://meter.ad"
+  },
+  "plugins": [
+    {
+      "name": "meter",
+      "source": "./",
+      "description": "OOH/DOOH inventory and projected audience calculations with METER."
+    }
+  ],
+  "metadata": {
+    "description": "METER tools and planning workflows for outdoor advertising."
+  }
+}
