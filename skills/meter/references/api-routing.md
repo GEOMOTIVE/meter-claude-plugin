@@ -19,6 +19,8 @@
 
 Do not infer campaign mode only because broadcast fields are populated; the `broadcastRequest` flag selects it. `impressionsRequest` is currently diagnostic/reserved and should not be described as affecting the returned media metrics.
 
+For standard campaign reach, explicitly preserve campaign controls when applicable: `blockSize: 0`, `byDays: false`, `chrono: 10`, `outputsInBlock: 1`, `impressions: [-1]`, and normalization 0.3 are the reference setup, not substitutes for user-supplied settings. For legacy use `reachModel: nbd-dirichlet` when the schema supports it.
+
 Use the tool's current input schema and the user's actual city, period, audience and discovered surface IDs. Never reuse example IDs from another campaign. Preserve explicit campaign controls and use `impressions: [-1]` only where the schema and selected calculation support that sentinel.
 
 ## Legacy OTS calculations
