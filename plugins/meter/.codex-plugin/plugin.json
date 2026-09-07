@@ -1,0 +1,40 @@
+{
+  "name": "meter",
+  "version": "0.2.0",
+  "description": "Plan outdoor advertising with METER: discover OOH/DOOH inventory, calculate projected audience, OTS and Reach, and prepare address programs. Requires a METER account.",
+  "author": {
+    "name": "METER",
+    "url": "https://meter.ad"
+  },
+  "homepage": "https://meter.ad",
+  "repository": "https://github.com/GEOMOTIVE/meter-claude-plugin",
+  "keywords": [
+    "ooh",
+    "dooh",
+    "media-planning",
+    "audience",
+    "reach",
+    "ots"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "METER",
+    "shortDescription": "OOH audience and planning",
+    "longDescription": "Discover outdoor advertising inventory and calculate projected Universe, OTS and Reach with METER. Requires an authorized METER account. Create address-program files when the client supports file authoring.",
+    "developerName": "METER",
+    "category": "Data & Analytics",
+    "capabilities": [
+      "Read"
+    ],
+    "websiteURL": "https://meter.ad",
+    "defaultPrompt": [
+      "Find OOH/DOOH inventory in my campaign city.",
+      "Calculate OTS and Reach for my selected surfaces.",
+      "Prepare an address program from validated METER results."
+    ],
+    "brandColor": "#390050",
+    "composerIcon": "./assets/meter-logo-square.png",
+    "logo": "./assets/meter-logo-square.png"
+  }
+}

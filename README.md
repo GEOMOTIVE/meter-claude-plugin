@@ -1,8 +1,8 @@
-# METER for Claude
+# METER for Claude, ChatGPT and Codex
 
 <img src="assets/meter-logo-square.png" alt="METER" width="96">
 
-Plan outdoor advertising with METER in Claude Code and Cowork. Discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address-program spreadsheets from validated results.
+Plan outdoor advertising with METER in Claude Code, Cowork, ChatGPT and Codex. Discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address-program spreadsheets from validated results.
 
 **Requires an existing METER account with access to the requested tools and countries.** Installing the plugin does not create an account or grant data access. Contact your METER account administrator for access; product information is at [meter.ad](https://meter.ad).
 
@@ -17,6 +17,10 @@ Restart Claude Code or run `/reload-plugins`. Open `/mcp`, select the METER serv
 
 This is METER's own marketplace. Listing in Anthropic's official directory is subject to review; this repository does not claim approval or Anthropic verification.
 
+## Codex and ChatGPT
+
+The OpenAI package is generated at `plugins/meter` from the same reviewed skills and assets. See [OpenAI installation and usage](docs/openai-package.md) and [OpenAI submission preparation](docs/openai-submission.md). Claude directory approval and OpenAI directory approval are separate; neither is claimed by this repository.
+
 ## Cowork
 
 Use the plugin's released ZIP with Cowork's plugin upload flow, or install from a marketplace supported by your workspace. Complete MCP sign-in when prompted. Availability and installation controls depend on the client and organization settings.
@@ -28,7 +32,7 @@ Use the plugin's released ZIP with Cowork's plugin upload flow, or install from 
 - “Using those exact surface IDs, calculate legacy OTS and Reach for the same audience and period. Label modeled contacts separately from unique audience.”
 - “Create an XLSX address program from those results, with a summary and an inventory table.”
 
-Use a city and period covered by your account. Spreadsheet creation depends on file-authoring tools available in your Claude environment; this package does not install a spreadsheet runtime.
+Use a city and period covered by your account. Spreadsheet creation depends on file-authoring tools available in your client; this package does not install a spreadsheet runtime.
 
 ## Calculation behavior
 
@@ -38,7 +42,7 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Troubleshooting
 
-- **Needs authentication / HTTP 401:** reconnect METER through `/mcp` and complete OAuth.
+- **Needs authentication / HTTP 401:** reconnect METER in the client’s connection settings (`/mcp` in Claude Code) and complete OAuth.
 - **Access denied / invalid country scope:** ask your METER administrator to check your existing account's tool and country permissions. Installing again does not grant permissions.
 - **New OTS no_data:** use legacy if the task permits; do not invent metrics.
 - **Timeout:** narrow the inventory/period or try later. Avoid repeating an unchanged request automatically.
@@ -46,7 +50,7 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Data and security
 
-The package contains instructions, branding and one HTTPS MCP configuration. It installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between Claude and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
+The package contains instructions, branding and one HTTPS MCP configuration. It installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
 
 ## Development and review
 

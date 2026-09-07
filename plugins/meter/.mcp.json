@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "meter": {
+      "type": "http",
+      "url": "https://mcp.meter.ad/meter/mcp"
+    }
+  }
+}

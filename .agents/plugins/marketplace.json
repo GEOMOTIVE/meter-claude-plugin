@@ -1,0 +1,20 @@
+{
+  "name": "meter-public",
+  "interface": {
+    "displayName": "Meter Public"
+  },
+  "plugins": [
+    {
+      "name": "meter",
+      "source": {
+        "source": "local",
+        "path": "./plugins/meter"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Data & Analytics"
+    }
+  ]
+}

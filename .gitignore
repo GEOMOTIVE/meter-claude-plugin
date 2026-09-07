@@ -3,3 +3,4 @@
 *.plugin
 .env*
 .claude/
+dist/
