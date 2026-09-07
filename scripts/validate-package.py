@@ -24,7 +24,7 @@ for path in root.rglob("*.md"):
         linked = (path.parent / target.split("#")[0]).resolve()
         assert linked.is_relative_to(root), (path, target, "outside package")
         assert linked.exists(), (path, target, "missing reference")
-    assert not re.search(r"localhost|userKey|user_key|new-geom-cluster|ClickHouse|OpenFGA|LiteLLM", text), path
+    assert not re.search(r"localhost|userKey|user_key|\b[a-z0-9]+(?:-[a-z0-9]+)*-cluster\b|ClickHouse|OpenFGA|LiteLLM", text), path
 skill = (root / "skills/meter/SKILL.md").read_text()
 assert skill.startswith("---\nname: meter\n")
 assert "description:" in skill.split("---", 2)[1]
