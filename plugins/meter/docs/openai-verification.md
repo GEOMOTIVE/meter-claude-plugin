@@ -1,6 +1,6 @@
 # OpenAI verification
 
-Verified on 7 September 2026 for package 0.2.0. These checks establish package integrity and the tested Codex workflow; they do not establish official directory approval.
+Verified on 7 September 2026 for package 0.2.0, with deployment, native client and OpenAI portal checks repeated on 8 September. These checks establish package integrity and the tested workflows; they do not establish official directory approval.
 
 ## Package and listing
 
@@ -28,6 +28,10 @@ The test used a small Tashkent inventory selection, August 2026 dates and demogr
 
 Path-scoped resource discovery and authorization-server discovery return HTTP 200 and advertise PKCE S256. Anonymous MCP initialization returns HTTP 401. The latest tested CLI completed login and reports OAuth authentication. The 401 response currently lacks a WWW-Authenticate discovery challenge; improve this for broader interoperability. Token expiry/refresh and workspace-domain restrictions have not been validated by this run.
 
-ChatGPT's new package connection and the eight reviewer scenarios still need an end-to-end run in the submission/development environment. Existing client integrations and successful Codex calls do not prove that separate ChatGPT setup. Publisher identity, domain verification, public service policies and reviewer access remain required before submission.
+On 8 September a draft was created in the OpenAI organization using its verified business identity. The portal completed its own OAuth flow, Scan Tools returned all 16 public methods with their explicit annotations, and the domain challenge completed with **Domain verified**. Listing fields, annotation justifications, starter prompts and all eight reviewer test cases were saved. This verifies portal authentication, discovery and domain ownership, not execution of the eight ChatGPT reviewer scenarios. File uploads, applicable public service policies, dedicated reviewer access and execution of those scenarios remain required before submission.
 
-A separately reviewed hosted-server patch minimizes discovery fields and successful-response identifiers; 140 source tests pass. It is prepared for review, not deployed. Rescan the hosted descriptors after it is released. No server behavior is changed by installing this client package.
+The reviewed hosted-server patch was deployed on 8 September after 140 source tests and release validation. Fresh public discovery confirmed all 16 methods, their output schemas and safety annotations, closed input objects, and removal of server-owned selectors and unsupported selection filters. A fresh native Codex session completed status and inventory requests; the documented Cyrillic city name returned an inventory record. A Latin spelling returned an empty selection, so callers should use the catalog's actual city names.
+
+A subsequent release added the optional public domain-verification response and passed all 148 source tests. Independent live checks verified the exact challenge response, rejected neighboring paths and unsupported methods, and confirmed that anonymous MCP initialization still returns HTTP 401. The OpenAI portal then accepted the challenge.
+
+The native Claude plugin repeated the same four-call calculation path after deployment. Inputs, all returned metric values and five legacy date fields matched the pre-release baseline. Echoed internal identifiers and top-level response timestamps were absent. These are controlled compatibility checks, not an independent audit of model accuracy. No server behavior is changed by installing this client package.

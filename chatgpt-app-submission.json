@@ -220,7 +220,7 @@
     },
     {
       "description": "Calculate legacy campaign contacts and reach",
-      "user_prompt": "First find up to three inventory records in Ташкент. Use those exact IDs for 1–31 August 2026, ages 20–45, all genders, income abc. Using the exact IDs from the inventory lookup, calculate legacy OTS and Reach for 1–31 August 2026, ages 20–45, all genders, income abc.",
+      "user_prompt": "First find up to three inventory records in Ташкент. Use those exact IDs to calculate legacy OTS and Reach for 1–31 August 2026, ages 20–45, all genders and income abc.",
       "file_attachment_urls": null,
       "tools_triggered": "meter-meter_query_surfaces, meter-meter_ots_reach",
       "expected_output": "Returns campaign OTS and Reach using the submitted IDs, dates and audience; distinguishes contacts from unique audience and names the legacy methodology. Does not infer filter loss solely from an empty response echo.",

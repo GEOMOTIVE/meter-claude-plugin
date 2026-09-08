@@ -23,3 +23,22 @@ Install following the README and authenticate in the client. A METER account wit
 ## Review boundaries
 
 No ad buying/booking, personal tracking, permit-owner matching or direct database access is shipped. Historical timings are API-only observations, not client performance guarantees. See verification.md for which release checks were actually completed.
+
+## Claude directory submission fields
+
+Prepared on 8 September 2026 for the [official submission form](https://platform.claude.com/plugins/submit). Submission has not been completed.
+
+| Field | Prepared value |
+| --- | --- |
+| Plugin link | https://github.com/GEOMOTIVE/meter-claude-plugin |
+| Path within repository | Leave empty: the Claude plugin is at the repository root |
+| Homepage | https://meter.ad |
+| Name | METER |
+| Tested surface | Claude Code; Claude Cowork has not been tested |
+| Privacy policy | https://meter.ad/privacy-policy |
+| Contact email | hello@meter.ad, as published on the official website |
+| License | Leave the optional field empty; this package has no assigned open-source license |
+
+Suggested description: Plan outdoor advertising with METER: discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address programs from validated results. Connects through OAuth and requires a METER account with access to the requested tools and countries. New OTS coverage varies; unavailable results are disclosed, and legacy calculations are used only when the task permits. Spreadsheet export depends on the file-authoring tools available in the client.
+
+Use the five positive cases above as example use cases. Publisher acceptance of Anthropic's Software Directory Terms and privately arranged reviewer access remain required. A validated package is not a submitted or approved listing.

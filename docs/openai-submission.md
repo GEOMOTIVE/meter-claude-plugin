@@ -22,9 +22,11 @@ Build from reviewed source using `python3 scripts/build-openai-package.py`. Chec
 | Logo | assets/meter-logo-square.png |
 | MCP server URL | https://mcp.meter.ad/meter/mcp |
 | Authentication | OAuth authorization code with PKCE S256; discovery metadata under the MCP URL's path |
-| Starter prompts | Inventory lookup; Universe calculation; OTS and Reach for selected surfaces |
-| Publisher | Select the publisher's verified identity in the owning OpenAI organization |
-| Support / Privacy / Terms | Supply publisher-approved public URLs; the technical data-handling note is not a substitute for service policy |
+| Starter prompts | Inventory lookup; OTS and Reach for selected surfaces; address programs from validated results |
+| Publisher | Verified business identity GEOMOTIVE selected in the owning OpenAI organization |
+| Support | https://meter.ad, which publishes hello@meter.ad |
+| Privacy | https://meter.ad/privacy-policy; confirm that the policy covers the MCP integration |
+| Terms | Supply the publisher-approved service terms URL; no public service terms URL has been verified |
 | Availability | Select only supported business regions; inventory geography and listing availability are distinct |
 | Reviewer account | Arrange privately, with relevant tool/country access and usable without private-network access or interactive second-factor dependencies |
 
@@ -34,7 +36,13 @@ Submit only after server review findings and client tests are resolved. A packag
 
 ## Current scope
 
-This preparation does not submit the application, select/attest publisher terms, create reviewer credentials, change account permissions, or claim official directory approval. The service remains protected by OAuth and existing METER access controls.
+On 8 September 2026 a draft was created in the publisher's OpenAI organization using its verified business identity. The portal completed OAuth, discovered all 16 public methods and confirmed **Domain verified** for the public MCP host. Listing text, all 48 annotation justifications, three starter prompts, five positive test cases, three negative test cases and release notes were saved.
+
+The skills archive and listing icons still need uploading. Publisher-approved service terms, confirmation of privacy-policy coverage, dedicated reviewer access with sample data, and execution of the eight ChatGPT reviewer scenarios remain outstanding. Prepared test cases are not evidence that those cases ran in ChatGPT. Directory policy declarations remain unchecked until the publisher confirms them.
+
+The public privacy page identifies METER IT LLC as controller and describes website, contact and service data. It does not explicitly describe the MCP integration's OAuth account information, tool inputs/results or their exchange with the selected AI client. Confirm the applicable coverage and publish accurate service-specific information before review; this repository does not make retention or data-use commitments on the publisher's behalf.
+
+No official OpenAI application has been submitted. Reviewer credentials and permissions have not been changed. The service remains protected by OAuth and existing METER access controls.
 
 ## Official references
 
