@@ -41,4 +41,4 @@ The legacy response can contain an empty echoed request and calculation-date sta
 - The fresh Claude Code sign-in and four-call calculation path are verified. Test Claude Cowork separately before listing it as a tested surface.
 - Arrange reviewer access privately; no credentials or customer records are published here.
 - The official website publishes [privacy information](https://meter.ad/privacy-policy) and the contact hello@meter.ad. Confirm that service policies cover the MCP integration and review any additional directory requirements. No open-source license has been assigned to this package.
-- Submit through Anthropic's authenticated submission form. A public repository and passing CI do not constitute directory submission or approval.
+- Submitted for Claude Code through Anthropic's authenticated form on 8 September 2026; the portal confirmed receipt and shows Submitted and pending review. Functional reviewer access remains pending. This status does not establish directory approval or publication.

@@ -26,19 +26,26 @@ No ad buying/booking, personal tracking, permit-owner matching or direct databas
 
 ## Claude directory submission fields
 
-Prepared on 8 September 2026 for the [official submission form](https://platform.claude.com/plugins/submit). Submission has not been completed.
+Submitted on 8 September 2026 through the [official submission form](https://platform.claude.com/plugins/submit), after the publisher accepted Anthropic's Software Directory Terms. The [submission list](https://platform.claude.com/plugins/submissions) shows **METER — Submitted and pending review**. This is an application for review, not directory approval or publication.
 
-| Field | Prepared value |
+| Field or reference | Value |
 | --- | --- |
 | Plugin link | https://github.com/GEOMOTIVE/meter-claude-plugin |
 | Path within repository | Leave empty: the Claude plugin is at the repository root |
 | Homepage | https://meter.ad |
 | Name | METER |
-| Tested surface | Claude Code; Claude Cowork has not been tested |
+| Submitted platform | Claude Code only; Claude Cowork has not been tested or selected |
 | Privacy policy | https://meter.ad/privacy-policy |
+| Service terms | https://meter.ad/terms-of-service?lang=en — GEOMOTIVE LTD, verified published on 8 September 2026 |
 | Contact email | hello@meter.ad, as published on the official website |
 | License | Leave the optional field empty; this package has no assigned open-source license |
 
-Suggested description: Plan outdoor advertising with METER: discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address programs from validated results. Connects through OAuth and requires a METER account with access to the requested tools and countries. New OTS coverage varies; unavailable results are disclosed, and legacy calculations are used only when the task permits. Spreadsheet export depends on the file-authoring tools available in the client.
+Submitted description: Plan outdoor advertising with METER: discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address programs from validated results. Connects through OAuth and requires a METER account with access to the requested tools and countries. New OTS coverage varies; unavailable results are disclosed, and legacy calculations are used only when the task permits. Spreadsheet export depends on the file-authoring tools available in the client.
 
-Use the five positive cases above as example use cases. Publisher acceptance of Anthropic's Software Directory Terms and privately arranged reviewer access remain required. A validated package is not a submitted or approved listing.
+Five example use cases covering inventory, Universe, legacy OTS/Reach, New OTS coverage handling and spreadsheet output were included. The form displayed **Plugin submitted for review** and confirmed receipt. Reviewer correspondence is directed to hello@meter.ad.
+
+The initial form has no field for reviewer credentials. A dedicated testing account with sample data still needs to be arranged privately for functional review, and service-specific privacy coverage needs confirmation. These remain review dependencies under sections 3.A and 3.D of the [Anthropic Software Directory Policy](https://support.claude.com/en/articles/13145358-anthropic-software-directory-policy); sending the initial application does not establish that they are complete. The Terms of Service URL in the table is a verified public reference, not a separate field in the current Claude form.
+
+## Dedicated-account verification
+
+Use the [reviewer test and demo runbook](reviewer-test-runbook.md) for the exact eight prepared OpenAI cases and the recording sequence. These instructions do not establish that a reviewer account has been provisioned or that its tests have passed.

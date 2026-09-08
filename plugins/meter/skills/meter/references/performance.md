@@ -32,4 +32,4 @@ For a comparable small scenario, simple lookups and calculations were usually un
 
 The API's default per-call timeout is 300 seconds, but clients/proxies may stop earlier. Several calls plus file creation take longer than a single API response. Do not describe fast errors, empty results or `no_data` as successful calculation timings. Do not automatically repeat an unchanged timed-out request. A first measurement does not necessarily mean a cold server cache.
 
-These historical measurements are distinct from the release checks documented in [verification](../../../docs/verification.md).
+These historical measurements are distinct from the release checks documented in [verification](https://github.com/GEOMOTIVE/meter-claude-plugin/blob/main/docs/verification.md).
