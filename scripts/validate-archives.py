@@ -29,7 +29,13 @@ for archive in archives:
                     assert target in names, (archive.name, name, link)
         if "openai-skills" in archive.name:
             assert ".mcp.json" not in names
-            assert "mcpServers" not in json.loads(z.read(".codex-plugin/plugin.json"))
+            assert ".codex-plugin/plugin.json" not in names
+            assert "SKILL.md" in names, "OpenAI expects a skill directory at the archive root"
+            source = root / "plugins/meter/skills/meter"
+            expected = {str(p.relative_to(source)): p.read_bytes() for p in source.rglob("*") if p.is_file()}
+            assert set(names) == set(expected), "Incomplete or extra skill archive contents"
+            for name, content in expected.items():
+                assert z.read(name) == content, (name, "skill differs from tested source")
         else:
             assert json.loads(z.read(".mcp.json"))["mcpServers"]["meter"]["url"] == "https://mcp.meter.ad/meter/mcp"
 subprocess.run([sys.executable, str(root / "scripts/package-releases.py")], check=True, stdout=subprocess.DEVNULL)
