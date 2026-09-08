@@ -1,6 +1,6 @@
 # Reviewer test and demo runbook
 
-Prepared on 8 September 2026 for METER 0.2.0. These are executable instructions, not a record of passed tests. Dedicated reviewer-account execution and the demo recording remain pending.
+Prepared on 8 September 2026 for METER 0.2.1. These are executable instructions, not a record of passed tests. Dedicated reviewer-account execution and the demo recording remain pending.
 
 ## Start with the reviewer account
 

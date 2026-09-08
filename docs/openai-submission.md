@@ -36,6 +36,8 @@ The submitter needs Apps Management write access. Complete the portal's domain c
 
 Submit only after server review findings and client tests are resolved. A package validation pass does not establish reviewer account readiness, OAuth interoperability on every client, legal readiness, submission or approval. After approval, publication is a separate action in the portal.
 
+Version 0.2.1 corrects the upload packaging and a documentation link; hosted tools and calculation instructions are unchanged. Use archives built from 0.2.1 for a new upload. Existing 0.2.0 release assets are retained unchanged.
+
 ## Current scope
 
 On 8 September 2026 a draft was created in the publisher's OpenAI organization using its verified business identity. The portal completed OAuth, discovered all 16 public methods and confirmed **Domain verified** for the public MCP host. Listing text, all 48 annotation justifications, three starter prompts, five positive test cases, three negative test cases and release notes were saved.
