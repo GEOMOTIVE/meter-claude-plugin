@@ -15,3 +15,7 @@ For example, a Reach fraction of `0.085` represents `8.5%`; with that response's
 METER metrics are extrapolated from panel devices to the population using weights or projection factors. Describe them as modeled or projected unless the response explicitly identifies a directly observed value. Scheduled ad plays are a separate quantity from OTS and unique Reach.
 
 Common audience dimensions include age, gender, income, residency, and available behavioral or interest segments. Income categories in internal METER data commonly use A (lower quartile), B (middle 50%), C (upper quartile), or combined `abc`. Preserve the audience requested by the user. These aggregate planning dimensions do not provide personal tracking, footfall, device, dwell-time, visit or movement-flow exports.
+
+## Arithmetic verification
+
+Report Reach percentages by default. Only add derived people counts after checking each raw Reach fraction multiplied by its own calculation Universe using a calculator or code. If arithmetic cannot be checked, omit the people count rather than estimating it mentally. Never multiply a displayed percentage directly by Universe; divide it by 100 first.
