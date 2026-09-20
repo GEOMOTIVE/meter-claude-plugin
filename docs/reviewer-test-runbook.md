@@ -1,6 +1,6 @@
 # Reviewer test and demo runbook
 
-Prepared on 8 September 2026 for METER 0.2.1; expectations revised on 19 September 2026 after client diagnostics found calculation and reporting failures. These are executable instructions, not a record of passed tests. Replay in the live clients after deployment and the final demo recording remain pending.
+Prepared on 8 September 2026; updated for METER 0.2.2 on 20 September 2026, with expectations revised on 19 September 2026 after client diagnostics found calculation and reporting failures. These are executable instructions, not a record of passed tests. Replay in the live clients after deployment and the final demo recording remain pending.
 
 ## Start with the reviewer account
 
