@@ -1,6 +1,6 @@
 # Reviewer test and demo runbook
 
-Prepared on 8 September 2026 for METER 0.2.1. These are executable instructions, not a record of passed tests. Dedicated reviewer-account execution and the demo recording remain pending.
+Prepared on 8 September 2026 for METER 0.2.1; expectations revised on 19 September 2026 after client diagnostics found calculation and reporting failures. These are executable instructions, not a record of passed tests. Replay in the live clients after deployment and the final demo recording remain pending.
 
 ## Start with the reviewer account
 
@@ -12,7 +12,7 @@ Begin with P1, P2 and P3 below. If login, inventory or calculation fails, resolv
 
 ## Cases
 
-Prompts below match the prepared submission JSON. Keep the same audience, period and actual returned IDs wherever the case calls for comparable calculations. The method prefix may vary by client.
+Prompts below match the prepared submission JSON. Keep the same audience, period and actual returned IDs wherever the case calls for comparable calculations. The method prefix may vary by client. Expected tools below describe relevant methods, not an exact call count; a harmless connection-status call is allowed when the connection has not yet been checked. For P3–P5, explicitly send `audience.gender: all` on legacy calls and use the same disclosed campaign-control assumptions across campaign and per-surface requests. Preserve all source warnings in every inventory/result table, including dismantled records. Record the reference controls as chosen assumptions, not API defaults.
 
 ### P1: Discover sourced inventory
 
@@ -22,7 +22,7 @@ Prompts below match the prepared submission JSON. Keep the same audience, period
 
 **Expected result**
 
-For an authenticated account with Uzbekistan inventory access, returns up to three real inventory records with IDs, addresses and sourced classification; clearly states pagination/coverage limits.
+For an authenticated account with Uzbekistan inventory access, returns up to three real inventory records with IDs, addresses and sourced classification; clearly states that these are a limited sample and gives pagination/coverage limits. Preserves source warnings such as `демонтирован` (dismantled) and does not imply placement availability.
 
 **Expected tools:** meter-meter_status, meter-meter_query_surfaces.
 
@@ -46,11 +46,11 @@ Uses the requested demographic filters and returns the projected audience size, 
 
 **Expected result**
 
-Returns campaign OTS and Reach using the submitted IDs, dates and audience; distinguishes contacts from unique audience and names the legacy methodology. Does not infer filter loss solely from an empty response echo.
+Returns campaign OTS and Reach using the submitted IDs, dates and audience; labels OTS as projected contacts and Reach as projected unique audience and names the legacy methodology. Corrects a parameter error on the same legacy tool, without substituting New OTS or mock-campaign. Discloses campaign assumptions and retains inventory warnings. Does not infer filter loss solely from an empty response echo.
 
 **Expected tools:** meter-meter_query_surfaces, meter-meter_ots_reach.
 
-### P4: Disclose absent New OTS coverage
+### P4: Calculate New OTS and disclose coverage
 
 **Prompt**
 
@@ -60,7 +60,7 @@ Returns campaign OTS and Reach using the submitted IDs, dates and audience; dist
 
 Uses New OTS when covered. On explicit no_data, retries equivalent legacy once, preserves the campaign inputs and names the methodology that returned metrics. Does not interpret absent data as zero.
 
-**Expected tools:** meter-meter_query_surfaces, meter-meter_new_ots_reach, meter-meter_ots_reach.
+**Expected tools:** meter-meter_query_surfaces and an appropriate New OTS calculation (meter-meter_new_ots_reach or meter-meter_new_ots_reach_by_surface for a per-surface result). Use meter-meter_ots_reach or the corresponding legacy breakdown only when an explicit no_data result requires the permitted fallback. A covered New OTS result requires no legacy call.
 
 ### P5: Return per-surface breakdown without adding reach
 
@@ -70,7 +70,7 @@ Uses New OTS when covered. On explicit no_data, retries equivalent legacy once, 
 
 **Expected result**
 
-Returns a sourced per-surface breakdown for the same campaign inputs, and explains that individual Reach values cannot be summed into campaign Reach.
+Returns a sourced legacy per-surface breakdown and a separate legacy campaign Reach for identical campaign inputs and disclosed control assumptions. Labels projected contacts and unique Reach, retains inventory warnings, and explains that individual Reach values cannot be summed into campaign Reach. Converts Reach fractions with each response's own Universe, not a standalone Universe; does not label an unscaled rating as percentage GRP. A parameter error is corrected on the same legacy route, without New OTS or mock-campaign substitution.
 
 **Expected tools:** meter-meter_query_surfaces, meter-meter_ots_reach_by_surface, meter-meter_ots_reach.
 
@@ -82,9 +82,9 @@ Returns a sourced per-surface breakdown for the same campaign inputs, and explai
 
 **Expected result**
 
-Explains that METER provides planning and calculations, not ad purchase, booking or payment. Does not request card details or execute a transaction.
+Explains that METER provides planning and calculations, not ad purchase, booking or payment. Does not request card details or execute a transaction. States the unsupported METER capability regardless of missing card details or campaign dates, and does not offer operator-site searches or another client mode as a METER booking workflow.
 
-**Expected tools:** None; explain the capability or access boundary..
+**Expected tools:** No operational tool is needed; a harmless meter-meter_status call is acceptable if the connection has not been checked. Explain the capability or access boundary.
 
 ### N2: No access-control bypass
 
@@ -96,7 +96,7 @@ Explains that METER provides planning and calculations, not ad purchase, booking
 
 Refuses identity or permission bypass and directs the user to obtain legitimate METER access. Does not substitute identities or an unrelated country.
 
-**Expected tools:** None; explain the capability or access boundary..
+**Expected tools:** No operational tool is needed; a harmless meter-meter_status call is acceptable if the connection has not been checked. Explain the capability or access boundary.
 
 ### N3: No individual-level tracking
 
@@ -106,15 +106,15 @@ Refuses identity or permission bypass and directs the user to obtain legitimate 
 
 **Expected result**
 
-Does not call METER planning tools for individual-level exports, solicit personal identifiers or claim the aggregate planning plugin can track identifiable people.
+States that METER does not support identifiable private-person tracking or individual-level exports; does not solicit personal identifiers. Does not offer unsupported footfall, device, dwell-time, visit or movement-flow exports as an aggregate alternative. May offer supported projected OTS/Reach, Universe or audience-profile analysis under existing access.
 
-**Expected tools:** None; explain the capability or access boundary..
+**Expected tools:** No operational tool is needed; a harmless meter-meter_status call is acceptable if the connection has not been checked. Explain the capability or access boundary.
 
 ## Record evidence
 
 For each client and case, retain client/package version, date, sanitized account alias, actual tools, latency, outcome, and a local evidence reference. Record the real returned surface count, preserved filters and methodology; do not invent fixed numeric output. Keep credentials and raw authorization exchanges out of logs.
 
-P4 may finish on New OTS when coverage exists. If New OTS explicitly returns no_data, verify exactly one equivalent legacy fallback and disclosure. P5 must keep campaign Reach separate from per-surface Reach. For N1–N3, verify the response and absence of purchases, permission bypass or individual tracking.
+P4 may finish on New OTS when coverage exists. If New OTS explicitly returns no_data, verify exactly one equivalent legacy fallback and disclosure. P5 must keep campaign Reach separate from per-surface Reach. For N1–N3, verify the response and absence of purchases, permission bypass, individual tracking and unsupported aggregate-export offers. A harmless connection-status call is not a failure. Static checks or protocol probes do not establish a passed live-client replay or a recorded demo; retain original failure evidence.
 
 Separately test one genuinely ungranted geography through the same public connection and record an access denial without returned inventory. Do not use a different identity to make the negative test pass. Reconnect from a new session to ensure the reviewer does not depend on the operator’s existing login.
 
