@@ -1,6 +1,10 @@
 # METER for Claude, ChatGPT and Codex
 
-<img src="assets/meter-logo-square.png" alt="METER" width="96">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/meter-logo-white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/meter-logo.svg">
+  <img src="assets/meter-logo.svg" alt="METER" width="340" height="64">
+</picture>
 
 Plan outdoor advertising with METER in Claude Code, Cowork, ChatGPT and Codex. Discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address-program spreadsheets from validated results.
 
