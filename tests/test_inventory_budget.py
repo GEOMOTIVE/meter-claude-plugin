@@ -47,6 +47,33 @@ def fixture():
 
 
 class InventoryBudgetTests(unittest.TestCase):
+    def test_preselection_keeps_fraction_model_and_never_binds_an_empty_total(self):
+        model = fixture()
+        model["selected_ids"] = []
+        model["extras"] = [{"component": "reserve", "unit": "fraction", "applies_to": ["media"],
+                            "amounts": dict.fromkeys(("low", "base", "high"), "0.15"), "currency": "UZS", "status": "estimate",
+                            "basis": "Illustrative reserve", "source_reference": "test-assumptions.json"}]
+        before = deepcopy(model)
+        output = budget.calculate(model)
+        self.assertEqual(output["eligible_ids"], [1, 2])
+        self.assertFalse(output["budget_complete"])
+        self.assertIsNone(output["total"])
+        self.assertIsNone(output["ledger_cost"])
+        self.assertIn({"id": None, "component": "reserve", "reason": "missing_fraction_base_rates"}, output["missing_costs"])
+        self.assertEqual(model, before)
+        for dependency in ("creative", "reserve", "unknown"):
+            model["extras"][0]["applies_to"] = [dependency]
+            with self.subTest(dependency=dependency), self.assertRaisesRegex(ValueError, "fraction base"):
+                budget.calculate(model)
+
+    def test_conflicting_or_malformed_country_codes_block_selection(self):
+        for code in ("KZ", "Uzbekistan"):
+            model = fixture()
+            model["records"][0]["cntry"] = "UZ"
+            model["records"].append({"id": 1, "cntry": code})
+            with self.subTest(code=code), self.assertRaises(budget.ModelError):
+                budget.calculate(model)
+
     def test_camel_snake_flags_and_missing_map_data_preserve_two_eligible_ids(self):
         output = budget.calculate(fixture())
         self.assertEqual(output["eligible_ids"], [1, 2])

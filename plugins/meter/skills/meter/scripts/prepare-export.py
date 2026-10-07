@@ -6,6 +6,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+import re
 import sys
 
 
@@ -41,6 +42,8 @@ def prepare(ledger, model):
     if requested_budget:
         require("media" in model["required_components"], "requested budget must include media")
         cost = final.get("cost")
+        require(not normalized["budget_complete"] or cost is not None,
+                "bind the complete budget ledger_cost to the retained final scenario before exporting")
         if cost is not None:
             bound = normalized["ledger_cost"]
             require(bound is not None, "final ledger has a total but export budget is incomplete")
@@ -58,8 +61,19 @@ def prepare(ledger, model):
     for seq, key in enumerate(ids, 1):
         source = rows_by_id[key]
         metadata = source["metadata"]
-        for field, expected in (("city", ledger["brief"]["parameters"]["city"]), ("country", ledger["brief"]["country"])):
-            require(not metadata.get(field) or metadata[field] == expected, f"ID {key}: inventory {field} differs from campaign")
+        expected_city = ledger["brief"]["parameters"]["city"]
+        require(not metadata.get("city") or metadata["city"] == expected_city,
+                f"ID {key}: inventory city differs from campaign")
+        country_code = ledger["brief"]["parameters"].get("countryCode")
+        if country_code is not None:
+            require(isinstance(country_code, str) and re.fullmatch(r"[A-Z]{2}", country_code),
+                    "campaign countryCode must be an uppercase ISO alpha-2 code")
+        if country_code and metadata.get("cntry"):
+            require(str(metadata["cntry"]).strip().upper() == country_code,
+                    f"ID {key}: inventory country code differs from campaign")
+        else:
+            require(not metadata.get("country") or metadata["country"] == ledger["brief"]["country"],
+                    f"ID {key}: inventory country differs from campaign; retain countryCode and cntry to compare localized names")
         rows.append({"seq": seq, "id": key, "metadata": metadata, "coordinates": source["coordinates"],
                      "media_class": source["media_class"], "availability": source["availability"],
                      "warnings": source["warnings"], "source_reference": normalized["inventory_source_reference"]})
@@ -170,7 +184,10 @@ def render_maps(bundle, spec, output):
         bounds = panel_bounds(current, width / height)
         x0, y0, x1, y1 = bounds
         tx0, ty0, tx1, ty1 = math.floor(x0 / 256), math.floor(y0 / 256), math.floor(x1 / 256), math.floor(y1 / 256)
-        require((tx1 - tx0 + 1) * (ty1 - ty0 + 1) <= 256, "map area exceeds 256 cached tiles; narrow the basemap extent")
+        if (tx1 - tx0 + 1) * (ty1 - ty0 + 1) > 256:
+            # Split before enumerating tiles or allocating the overview raster.
+            # The campaign roster remains intact even at a high cached zoom.
+            return False, False
         tiles = [(x, y, tile_directory / f"{zoom}_{x}_{y}.png") for x in range(tx0, tx1 + 1) for y in range(ty0, ty1 + 1)]
         placements = layout(current, bounds, width, height, font, probe)
         readable = all(p["label"] is not None for p in placements)

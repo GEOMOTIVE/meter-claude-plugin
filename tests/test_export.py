@@ -32,15 +32,37 @@ def tile_spec(directory):
             "attribution": "Synthetic test grid, not a city basemap", "source_reference": "test-only tiles"}
 
 
-def write_tiles(directory, groups):
+def write_tiles(directory, groups, zoom=12):
     x0, y0, x1, y1 = export.panel_bounds(groups, 1100 / 720)
     import math
     for x in range(math.floor(x0 / 256), math.floor(x1 / 256) + 1):
         for y in range(math.floor(y0 / 256), math.floor(y1 / 256) + 1):
-            Image.new("RGB", (256, 256), "#DDDDDD").save(directory / f"12_{x}_{y}.png")
+            Image.new("RGB", (256, 256), "#DDDDDD").save(directory / f"{zoom}_{x}_{y}.png")
 
 
 class ExportPreparationTests(unittest.TestCase):
+    def test_localized_country_names_use_retained_iso_identity(self):
+        ledger, model = fixture()
+        ledger["brief"]["parameters"]["countryCode"] = "UZ"
+        model["campaign"]["parameters"]["countryCode"] = "UZ"
+        for s in ledger["scenarios"]:
+            s["request"]["countryCode"] = "UZ"
+        for record in model["records"]:
+            record.update(country="Узбекистан", cntry="UZ")
+        ledger["scenarios"][0]["cost"] = budget.calculate(model)["ledger_cost"]
+        bundle = export.prepare(ledger, model)
+        self.assertEqual(bundle["rows"][0]["metadata"]["country"], "Узбекистан")
+        self.assertEqual(bundle["rows"][0]["metadata"]["cntry"], "UZ")
+        model["records"][0].update(country="Uzbekistan", cntry="KZ")
+        with self.assertRaisesRegex(ValueError, "country code differs"):
+            export.prepare(ledger, model)
+
+    def test_wrong_country_names_without_iso_evidence_are_rejected(self):
+        ledger, model = fixture()
+        model["records"][0]["country"] = "Kazakhstan"
+        with self.assertRaisesRegex(ValueError, "country differs"):
+            export.prepare(ledger, model)
+
     def test_single_source_order_and_final_campaign_result(self):
         ledger, model = fixture()
         bundle = export.prepare(ledger, model)
@@ -142,6 +164,38 @@ class ExportPreparationTests(unittest.TestCase):
             spec["font_path"] = str(base / "missing.ttf")
             self.assertIn("font", export.render_maps(bundle, spec, base)["reason"])
 
+    def test_large_high_zoom_extent_splits_before_overview_allocation(self):
+        bundle = export.prepare(*fixture())
+        bundle["brief"]["parameters"]["city"] = "Test city"
+        bundle["rows"][1]["coordinates"] = {"lat": 41.4, "lng": 69.3}
+        groups = export.map_groups(bundle["rows"], 16)
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            for group in groups:
+                write_tiles(base, [group], 16)
+            spec = dict(tile_spec(base), zoom=16)
+            from unittest.mock import patch
+            original_new = Image.new
+            sizes = []
+            def bounded_new(mode, size, *args, **kwargs):
+                sizes.append(size)
+                self.assertLessEqual(size[0] * size[1], 256 * 256 * 256)
+                return original_new(mode, size, *args, **kwargs)
+            with patch.object(Image, "new", side_effect=bounded_new):
+                result = export.render_maps(bundle, spec, base)
+            self.assertTrue(result["complete"])
+            self.assertEqual(result["mapped_ids"], [1, 2])
+            self.assertEqual(len(result["panels"]), 2)
+            self.assertTrue(sizes)
+            for tile in base.glob("16_*.png"):
+                tile.unlink()
+            write_tiles(base, [groups[0]], 16)
+            result = export.render_maps(bundle, spec, base)
+            self.assertFalse(result["complete"])
+            self.assertEqual(result["mapped_ids"], [1])
+            self.assertEqual(result["unmapped_ids"], [2])
+            self.assertEqual([row["id"] for row in bundle["rows"]], [1, 2])
+
     def test_coordinates_outside_projection_remain_unmapped_without_losing_rows(self):
         bundle = export.prepare(*fixture())
         bundle["brief"]["parameters"]["city"] = "Test city"
@@ -176,7 +230,14 @@ def saved_fixture(filename, bundle, mutation=None):
         if isinstance(value, str):
             return f'<c r="{ref}" t="inlineStr"><is><t>{escape(value)}</t></is></c>'
         return f'<c r="{ref}"><v>{value}</v></c>'
-    values = {"B7": 2, "B8": 0.4, "B9": 1267819, "B10": 507127.6, "B13": "0 / 2"}
+    values = {"B3": "Ташкент", "B4": 46235, "B5": 46265,
+              "B6": "all, 18–55, bc", "A8": "Reach 5+ программы",
+              "B11": bundle["summary"]["methodology"],
+              "B12": json.dumps({k: v for k, v in bundle["brief"]["parameters"].items()
+                                 if k not in ("city", "periodFrom", "periodTo", "audience")}),
+              "B7": 2, "B8": 0.4, "B9": 1267819, "B10": 507127.6, "B13": "0 / 2",
+              "B14": "1, 2", "B15": "частичная: Missing basemap", "B16": "Наличие не подтверждено",
+              "B18": "не запрошен"}
     s = '<worksheet xmlns="' + ns + '"><sheetData><row r="1">' + ''.join(cell(k, v, "B8*B9" if k == "B10" else None) for k, v in values.items()) + '</row></sheetData></worksheet>'
     a = '<worksheet xmlns="' + ns + '"><sheetViews><sheetView><pane state="frozen"/></sheetView></sheetViews><sheetData>'
     for i, row in enumerate(bundle["rows"], 6):
@@ -206,7 +267,7 @@ class SavedExportTests(unittest.TestCase):
         ledger, model = fixture()
         ledger["brief"]["budget_mode"] = "none"
         bundle = export.prepare(ledger, model)
-        bundle["map"] = {"mapped_ids": [], "unmapped_ids": [1, 2], "panels": [], "complete": False}
+        bundle["map"] = {"mapped_ids": [], "unmapped_ids": [1, 2], "panels": [], "complete": False, "reason": "Missing basemap"}
         return bundle
 
     def test_reads_exact_text_ids_and_partial_map_from_saved_workbook(self):
@@ -214,6 +275,47 @@ class SavedExportTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "fixture.xlsx"
             saved_fixture(file, bundle)
+            self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
+
+    def test_changed_campaign_metadata_and_frequency_are_rejected(self):
+        import xml.etree.ElementTree as ET
+        changes = {"B3": "Самарканд", "B4": "46236", "B5": "46266", "B6": "female, 25–35, a",
+                   "A8": "Reach 1+ программы", "B11": "other method", "B12": "{}",
+                   "B14": "нет", "B15": "полная", "B16": "Подтверждено", "B18": "confirmed"}
+        for ref, value in changes.items():
+            with self.subTest(ref=ref), tempfile.TemporaryDirectory() as directory:
+                bundle = self.fixture()
+                file = Path(directory) / "changed.xlsx"
+                def mutate(files):
+                    part = "xl/worksheets/sheet1.xml"
+                    root = ET.fromstring(files[part])
+                    cell = root.find(f".//s:c[@r='{ref}']", verify.NS)
+                    target = cell.find("s:is/s:t", verify.NS) if cell.attrib.get("t") == "inlineStr" else cell.find("s:v", verify.NS)
+                    target.text = value
+                    files[part] = ET.tostring(root, encoding="unicode")
+                saved_fixture(file, bundle, mutate)
+                with self.assertRaises(ValueError):
+                    verify.verify(bundle, file)
+
+    def test_campaign_metadata_formula_is_rejected_even_with_unchanged_cached_text(self):
+        bundle = self.fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "changed.xlsx"
+            def mutate(files):
+                files["xl/worksheets/sheet1.xml"] = files["xl/worksheets/sheet1.xml"].replace(
+                    '<c r="B6" t="inlineStr">', '<c r="B6" t="inlineStr"><f>"all, 18–55, bc"</f>')
+            saved_fixture(file, bundle, mutate)
+            with self.assertRaises(verify.VerificationError):
+                verify.verify(bundle, file)
+
+    def test_1904_epoch_preserves_visible_campaign_dates(self):
+        bundle = self.fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / "dates.xlsx"
+            def mutate(files):
+                files["xl/workbook.xml"] = files["xl/workbook.xml"].replace('<sheets>', '<workbookPr date1904="1"/><sheets>')
+                files["xl/worksheets/sheet1.xml"] = files["xl/worksheets/sheet1.xml"].replace('<v>46235</v>', '<v>44773</v>').replace('<v>46265</v>', '<v>44803</v>')
+            saved_fixture(file, bundle, mutate)
             self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
 
     def test_saved_id_formula_error_and_missing_image_relationship_are_rejected(self):

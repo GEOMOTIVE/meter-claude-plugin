@@ -21,6 +21,14 @@ Store the exact model-facing tool arguments that were submitted, even when the A
 
 Report “best among the tested feasible programs,” the requested campaign Reach N+, count, budget status, methodology/controls, pool size/coverage, number of unique programs and actual calculation attempts, and stopping reason. A global-optimum claim requires an actual proof or exhaustive search of the stated feasible space; none is provided by this workflow. An economy alternative is useful when requested or when it explains a material Reach/cost tradeoff, but estimated price differences cannot establish proven cost efficiency.
 
+## Follow-up requests
+
+Reload the retained brief, ledger and source references before answering a follow-up. An XLSX/map request or presentation change reuses the successful latest final result and exact ordered IDs; it does not restart selection or require another final calculation. Preserve the original calculation time and campaign controls.
+
+Prices alone do not change OTS/Reach. Recompute the cost model, retain the preceding checkpoint and bind the updated cost to the unchanged request before exporting. A stale recorded total must not accompany new prices. If prices or a new spending cap change feasibility, reconsider selection under that constraint; do not describe the earlier winner as still best without checking.
+
+Changes to audience, period, methodology, surface IDs or placement controls require new media results. A change to the requested N+ frequency requires that campaign metric from a valid retained response or a new calculation; never relabel Reach1+ as Reach5+. Keep the earlier comparison available, as described above. If the latest final attempt fails, preserve the previous checkpoint and explain that it is unconfirmed; do not export it as a freshly verified recommendation or repeatedly retry unchanged arguments.
+
 ## Local ledger check
 
 When local Python/file execution is available, use the bundled [campaign-ledger.py](../scripts/campaign-ledger.py). It validates the brief against the exact submitted arguments, rejects invalid/noncomparable results and selects the best of the recorded successful feasible programs. It does not call METER, generate candidates, verify backend accuracy, confirm availability or prove optimality. Otherwise apply the same checks with available client tools and retain the ledger; do not present the missing helper as a connection failure.

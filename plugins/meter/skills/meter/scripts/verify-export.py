@@ -2,6 +2,7 @@
 """Check the actual saved XLSX against its prepared METER export bundle."""
 import argparse
 from collections import Counter
+from datetime import date
 from decimal import Decimal
 import hashlib
 import json
@@ -105,6 +106,46 @@ def verify(bundle, filename):
         require(xml(sheets["Адресная программа"]).find("s:sheetViews/s:sheetView/s:pane", NS) is not None, "address header panes missing")
         require(xml(sheets["Адресная программа"]).find("s:tableParts/s:tablePart", NS) is not None, "address filter table missing")
         summary = cells(sheets["Карта и итог"])
+        parameters = bundle["brief"]["parameters"]
+        audience = parameters.get("audience") or {
+            "age_from": parameters["ageFrom"], "age_to": parameters["ageTo"],
+            "gender": parameters["gender"], "income": parameters["income"]}
+
+        def literal(ref, expected):
+            cell = summary.get(ref, {})
+            require(cell.get("formula") is None and cell.get("type") in ("s", "inlineStr", "str")
+                    and cell.get("value") in (expected, "'" + expected),
+                    "campaign metadata mismatch at " + ref)
+
+        literal("B3", parameters["city"])
+        literal("B6", f"{audience['gender']}, {audience['age_from']}–{audience['age_to']}, {audience['income']}")
+        literal("A8", f"Reach {bundle['summary']['frequency']}+ программы")
+        literal("B11", bundle["summary"]["methodology"])
+        controls = {k: v for k, v in parameters.items()
+                    if k not in ("city", "periodFrom", "periodTo", "audience", "ageFrom", "ageTo", "gender", "income")}
+        control_cell = summary.get("B12", {})
+        require(control_cell.get("formula") is None and control_cell.get("type") in ("s", "inlineStr", "str"),
+                "campaign controls must be literal JSON")
+        require(json.dumps(json.loads(control_cell.get("value", "")), sort_keys=True, allow_nan=False)
+                == json.dumps(controls, sort_keys=True, allow_nan=False), "campaign controls mismatch")
+        book_properties = xml("xl/workbook.xml").find("s:workbookPr", NS)
+        date1904 = book_properties is not None and book_properties.attrib.get("date1904") in ("1", "true")
+        epoch = date(1904, 1, 1) if date1904 else date(1899, 12, 30)
+        for ref, key in (("B4", "periodFrom"), ("B5", "periodTo")):
+            cell = summary.get(ref, {})
+            require(cell.get("formula") is None, "campaign date must be literal at " + ref)
+            if cell.get("type") == "d":
+                require(cell.get("value") in (parameters[key], parameters[key] + "T00:00:00Z"),
+                        "campaign date mismatch at " + ref)
+            else:
+                require(cell.get("type") == "n", "campaign date must be stored as an Excel date at " + ref)
+                require(cell.get("value") is not None and Decimal(cell["value"])
+                        == (date.fromisoformat(parameters[key]) - epoch).days,
+                        "campaign date mismatch at " + ref)
+        literal("B14", ", ".join(str(key) for key in bundle["map"]["unmapped_ids"]) or "нет")
+        literal("B15", "полная" if bundle["map"]["complete"] else "частичная: " + str(bundle["map"].get("reason")))
+        literal("B16", "Наличие не подтверждено")
+        literal("B18", bundle["budget"]["budget_status"] if bundle["budget"] else "не запрошен")
         close(summary["B7"]["value"], len(ids), "summary surface count mismatch")
         close(summary["B8"]["value"], bundle["result"]["reach_fraction"], "campaign Reach mismatch")
         close(summary["B9"]["value"], bundle["result"]["universe"], "campaign Universe mismatch")
