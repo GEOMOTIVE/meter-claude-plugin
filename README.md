@@ -56,7 +56,9 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Troubleshooting
 
-- **Needs authentication / HTTP 401:** reconnect METER in the client’s connection settings (`/mcp` in Claude Code) and complete OAuth.
+First identify the requested connection and the failing layer. A different METER integration's result does not validate this package, a website-root 404 does not test the MCP endpoint, and a successful status/docs probe does not validate campaign calculations. The [diagnostics guide](skills/meter/references/diagnostics.md) distinguishes these cases and provides an optional read-only local classifier. Its package version resource identifies those files; installed skills, MCP server and calculation service versions are separate observations.
+
+- **Client authentication / MCP endpoint HTTP 401:** reconnect METER in the client’s connection settings (`/mcp` in Claude Code) and complete OAuth. A 401 inside a tool's upstream API result does not by itself establish a client login failure.
 - **Subscription required:** open [Wallet](https://window.wallet.meter.ad/plugin), check the licensed user and country, and purchase or fund the recorded payer for renewal. Reinstalling or signing in repeatedly does not activate a license.
 - **Wallet verification unavailable:** try again shortly; an outage does not grant temporary data access.
 - **Access denied / invalid country scope:** ask your METER administrator to check your existing account's tool and country permissions. Installing again does not grant permissions.
@@ -66,7 +68,7 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Data and security
 
-The package contains instructions, branding, one HTTPS MCP configuration and optional local helpers for campaign validation, budgets and XLSX exports. Helpers use no network or credentials; export helpers write only explicitly named new local outputs. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
+The package contains instructions, branding, one HTTPS MCP configuration and optional local helpers for campaign validation, budgets, XLSX exports and diagnostics. Helpers use no network or credentials; export helpers write only explicitly named new local outputs. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
 
 ## Development and review
 

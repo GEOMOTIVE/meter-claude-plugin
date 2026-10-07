@@ -10,6 +10,8 @@ marketplace = json.loads((root / ".claude-plugin/marketplace.json").read_text())
 mcp = json.loads((root / ".mcp.json").read_text())
 assert manifest["name"] == "meter"
 assert re.fullmatch(r"\d+\.\d+\.\d+", manifest["version"])
+assert json.loads((root / "skills/meter/references/package-version.json").read_text()) == {
+    "schema_version": 1, "package": "meter@meter-public", "version": manifest["version"]}
 assert marketplace["plugins"][0]["source"] == "./"
 assert marketplace["plugins"][0]["name"] == manifest["name"]
 assert mcp == {"mcpServers": {"meter": {"type": "http", "url": "https://mcp.meter.ad/meter/mcp"}}}
