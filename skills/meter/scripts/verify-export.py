@@ -31,6 +31,20 @@ def close(actual, expected, message):
     require(actual is not None and abs(Decimal(str(actual)) - Decimal(str(expected))) <= Decimal("0.00001"), message)
 
 
+def same_json(actual, expected):
+    # JavaScript may serialize 0.0 as 0; booleans and strings remain distinct.
+    if type(actual) in (int, float) and type(expected) in (int, float):
+        left, right = Decimal(str(actual)), Decimal(str(expected))
+        return left.is_finite() and right.is_finite() and left == right
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(actual, dict):
+        return actual.keys() == expected.keys() and all(same_json(actual[k], expected[k]) for k in actual)
+    if isinstance(actual, list):
+        return len(actual) == len(expected) and all(same_json(a, b) for a, b in zip(actual, expected))
+    return actual == expected
+
+
 def verify(bundle, filename):
     with zipfile.ZipFile(filename) as archive:
         require(archive.testzip() is None, "XLSX ZIP is corrupt")
@@ -126,8 +140,7 @@ def verify(bundle, filename):
         control_cell = summary.get("B12", {})
         require(control_cell.get("formula") is None and control_cell.get("type") in ("s", "inlineStr", "str"),
                 "campaign controls must be literal JSON")
-        require(json.dumps(json.loads(control_cell.get("value", "")), sort_keys=True, allow_nan=False)
-                == json.dumps(controls, sort_keys=True, allow_nan=False), "campaign controls mismatch")
+        require(same_json(json.loads(control_cell.get("value", "")), controls), "campaign controls mismatch")
         book_properties = xml("xl/workbook.xml").find("s:workbookPr", NS)
         date1904 = book_properties is not None and book_properties.attrib.get("date1904") in ("1", "true")
         epoch = date(1904, 1, 1) if date1904 else date(1899, 12, 30)
