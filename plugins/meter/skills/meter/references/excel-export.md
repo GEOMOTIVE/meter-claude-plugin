@@ -1,5 +1,7 @@
 # Address-program spreadsheet
 
+For a new workbook from a validated final campaign, use the maintained local [export builder](export-builder.md) when its dependencies are available. It binds the roster, budget and map and verifies the saved XLSX. Other clients can follow this contract with their file tools.
+
 Use this reference for an Excel/XLSX address program or client-ready spreadsheet. Follow the client's spreadsheet-authoring skill when available. Preserve the user's language, requested columns and layout. The public plugin supplies inventory and projected audience calculations; it does not supply monitoring, clutter, permit-owner information, bookable availability or operator prices.
 
 ## One validated campaign dataset

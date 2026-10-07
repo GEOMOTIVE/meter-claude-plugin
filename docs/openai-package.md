@@ -38,6 +38,8 @@ For “maximize Reach 5+ with at most 80 surfaces,” the skill compares complet
 
 Inventory and budget preparation preserves source warnings, holds unresolved static/digital conflicts for review and calculates explicit cost scenarios without inventing missing prices. The optional local helper has no tariff feed and does not confirm placement availability. See [inventory and budget](../skills/meter/references/inventory-budget.md).
 
+The optional [local XLSX builder](../skills/meter/references/export-builder.md) joins the validated final roster, editable costs and embedded map. It uses the client's available authoring runtime and cached attributed tiles, preserves missing-data warnings and verifies the saved workbook. It fetches no tiles and installs no dependencies.
+
 See [metric definitions](../skills/meter/references/metrics.md), [routing](../skills/meter/references/api-routing.md), [response-time expectations](../skills/meter/references/performance.md), [data handling](../docs/data-handling.md), and [OpenAI verification evidence](../docs/openai-verification.md).
 
 ## Source and support
