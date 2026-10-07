@@ -37,7 +37,7 @@ Include a map in a client-ready XLSX address program unless the user explicitly 
 - Include the campaign period, numbering legend and basemap attribution. Do not add competitor heatmaps or category clutter without an available authorized source; the public METER tools do not provide those datasets.
 - Prefer a local or cached basemap. Do not send campaign, coordinate or account data to external map services without authorization. The plugin does not install a map renderer; use a suitable available local renderer and embed its image in the workbook.
 
-If a map cannot be made, identify the concrete missing input or capability and mark the export partial. Retain the valid table and calculations; never invent points or claim that an incomplete map covers the whole program.
+If a map cannot be made, identify the concrete missing input or capability and mark the export partial. For missing coordinates on some rows, show mapped/selected counts and list the unmapped IDs. Keep those rows and the original campaign result; do not remove selected surfaces merely to make map counts agree. Never invent points or claim that an incomplete map covers the whole program.
 
 ## Metrics, formulas and budget
 
@@ -51,7 +51,7 @@ Keep confirmed prices, estimates and unavailable costs distinct. When the user a
 
 Before delivery:
 
-- Reconcile selected unique IDs, address-table IDs, campaign-request IDs and map point IDs; verify the same sequence-to-ID mapping throughout.
+- Reconcile selected unique IDs, address-table IDs, campaign-request IDs and map point IDs; verify the same sequence-to-ID mapping throughout. For a disclosed partial map, verify its mapped-ID subset and unmapped-ID list against the complete program instead.
 - Reconcile counts and available contact totals with the source dataset. Check the first and last address rows; preserve reporting period, audience, methodology and controls.
 - Inspect formulas and errors, missing values and actual readability. Keep source warnings and price status visible.
 - Render the map and affected sheets for visual review. Confirm that the map is embedded and readable in the exported XLSX, not merely stored beside it. Some spreadsheet previews omit worksheet images: check the archive's image/drawing relationships and, when available, open it in a spreadsheet viewer.
