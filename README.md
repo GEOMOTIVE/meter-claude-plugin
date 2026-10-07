@@ -8,7 +8,9 @@
 
 Plan outdoor advertising with METER in Claude Code, Cowork, ChatGPT and Codex. Discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, inspect audience profiles, and prepare address-program spreadsheets from validated results.
 
-**Requires an existing METER account with access to the requested tools and countries.** Installing the plugin does not create an account or grant data access. Contact your METER account administrator for access; product information is at [meter.ad](https://meter.ad).
+**Requires a METER account and an active Plugin subscription: $599 per user, per country, per month.** [Purchase or manage subscriptions in Wallet](https://window.wallet.meter.ad/plugin). Sign in with the same METER identity in Wallet and your assistant. Choose the licensed user and country before confirming. Installing the plugin does not grant data access.
+
+A team can pay from its Wallet account subject to its team budget; the license covers only the selected user and country. Each country renews independently. Cancellation keeps access until the paid period ends. Wallet shows the final top-up quote, currency conversion and applicable fees before payment.
 
 ## Install in Claude Code
 
@@ -47,6 +49,8 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 ## Troubleshooting
 
 - **Needs authentication / HTTP 401:** reconnect METER in the client’s connection settings (`/mcp` in Claude Code) and complete OAuth.
+- **Subscription required:** open [Wallet](https://window.wallet.meter.ad/plugin), check the licensed user and country, and purchase or fund the recorded payer for renewal. Reinstalling or signing in repeatedly does not activate a license.
+- **Wallet verification unavailable:** try again shortly; an outage does not grant temporary data access.
 - **Access denied / invalid country scope:** ask your METER administrator to check your existing account's tool and country permissions. Installing again does not grant permissions.
 - **New OTS no_data:** use legacy if the task permits; do not invent metrics.
 - **Timeout:** narrow the inventory/period or try later. Avoid repeating an unchanged request automatically.
