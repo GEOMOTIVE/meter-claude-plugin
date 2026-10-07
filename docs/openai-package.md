@@ -1,6 +1,8 @@
 # METER for ChatGPT and Codex
 
-Use METER to discover OOH/DOOH inventory, calculate projected Universe, OTS and Reach, and prepare address programs from validated results. A METER account with access to the requested tools and countries is required. Installing this package does not grant service or data access.
+Use METER to discover OOH/DOOH inventory, calculate projected Universe, OTS and Reach, and prepare address programs from validated results. A METER account and an active Plugin subscription are required: **$599 per user, per country, per month**. [Purchase or manage the subscription in Wallet](https://window.wallet.meter.ad/plugin), then sign in to the assistant with the same METER account. Installing this package does not grant service or data access.
+
+Wallet displays the licensed user, country, payer, paid period and final top-up quote. Team payment covers the selected user only and respects the team budget. Countries renew independently; cancellation takes effect at the paid period end. A subscription-required message needs a Wallet action; OAuth reconnection is only for authentication failure. If Wallet verification is temporarily unavailable, retry later.
 
 ## Codex installation
 

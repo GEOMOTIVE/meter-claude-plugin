@@ -18,7 +18,7 @@ manifest.update({
     "interface": {
         "displayName": "METER",
         "shortDescription": "OOH audience and planning",
-        "longDescription": "Discover outdoor advertising inventory and calculate projected Universe, OTS and Reach with METER. Requires an authorized METER account. Create address-program files when the client supports file authoring.",
+        "longDescription": "Discover outdoor advertising inventory and calculate projected Universe, OTS and Reach with METER. Requires a METER account and a $599/month Plugin subscription per user per country. Create address-program files when the client supports file authoring.",
         "developerName": "METER",
         "category": "Data & Analytics",
         "capabilities": ["Read"],

@@ -4,7 +4,7 @@
   "app_info": {
     "display_name": "METER",
     "subtitle": "OOH audience and planning",
-    "description": "METER helps media planners discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, and prepare address programs from validated results. An existing METER account with access to the requested geography is required. New OTS coverage varies; unavailable results are disclosed and legacy is used only when the task permits. File exports depend on client file-authoring tools.",
+    "description": "METER helps media planners discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, and prepare address programs from validated results. A METER account and an active Plugin subscription ($599 per user, per country, per month) are required. Purchase and manage subscriptions at https://window.wallet.meter.ad/plugin. New OTS coverage varies; unavailable results are disclosed and legacy is used only when the task permits. File exports depend on client file-authoring tools.",
     "category": "BUSINESS"
   },
   "tools": {
