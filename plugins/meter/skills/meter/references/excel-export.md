@@ -45,7 +45,7 @@ Use [metrics.md](metrics.md) for units. Show OTS/LTS as projected contacts with 
 
 Use formulas for editable budget calculations and totals. Editing rates changes budget, not the stored METER audience result. Editing surfaces, period, audience or campaign controls requires a new METER calculation. Explain this distinction in a workbook with editable inputs.
 
-Keep confirmed prices, estimates and unavailable costs distinct. When the user asks for an estimate, disclose its model and assumptions rather than calling it a tariff. Do not present an arbitrary reserve as an established tax rate.
+Keep confirmed prices, estimates and unavailable costs distinct. Use [inventory-budget.md](inventory-budget.md) for matching rates, billing units, component totals and ranges. When the user asks for an estimate, disclose its model and assumptions rather than calling it a tariff. Do not present an arbitrary reserve as an established tax rate. Show missing prices as unavailable and known subtotals as partial; never turn them into a complete zero-cost budget.
 
 ## Verification and delivery
 

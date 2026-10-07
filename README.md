@@ -48,6 +48,8 @@ There are 16 METER tools. Legacy OTS is used when New OTS coverage is unknown. N
 
 Campaign Reach optimization compares whole-program calculations under a persisted brief. The optional local ledger checker detects changed requests and selects the best recorded feasible result; it is not a hosted optimizer or proof of global optimality. See [campaign planning](skills/meter/references/campaign-planning.md).
 
+Program preparation also checks inventory status and conflicting static/digital metadata before selection. An optional local helper calculates a sourced or explicitly assumed budget by component and range; missing prices remain unavailable, and placement availability remains unconfirmed. See [inventory and budget](skills/meter/references/inventory-budget.md).
+
 Historical small-scenario API measurements were roughly <1 second for simple queries, 1–3 seconds for selection/legacy calculations, 6–8 seconds for New OTS, and 12–15 seconds for some breakdowns. These exclude OAuth and remote MCP overhead and are not an SLA. See [method timings and limitations](skills/meter/references/performance.md).
 
 ## Troubleshooting
@@ -62,7 +64,7 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Data and security
 
-The package contains instructions, branding, one HTTPS MCP configuration and an optional Python helper for checking local campaign ledgers. The helper uses no network or credentials. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
+The package contains instructions, branding, one HTTPS MCP configuration and optional Python helpers for checking local campaign ledgers and inventory/budget models. The helpers use no network or credentials. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
 
 ## Development and review
 

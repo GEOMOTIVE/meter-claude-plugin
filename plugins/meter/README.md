@@ -36,6 +36,8 @@ Client-ready address programs include a map unless the user requests a table-onl
 
 For “maximize Reach 5+ with at most 80 surfaces,” the skill compares complete campaigns and retains the brief and tested variants. A surface ranking is only a starting point. The optional local Python ledger checker validates recorded requests and results without calling METER; client file execution is required to use it. See [campaign planning](skills/meter/references/campaign-planning.md). Results are the best among tested feasible programs, with search and price limitations disclosed.
 
+Inventory and budget preparation preserves source warnings, holds unresolved static/digital conflicts for review and calculates explicit cost scenarios without inventing missing prices. The optional local helper has no tariff feed and does not confirm placement availability. See [inventory and budget](skills/meter/references/inventory-budget.md).
+
 See [metric definitions](skills/meter/references/metrics.md), [routing](skills/meter/references/api-routing.md), [response-time expectations](skills/meter/references/performance.md), [data handling](docs/data-handling.md), and [OpenAI verification evidence](docs/openai-verification.md).
 
 ## Source and support
