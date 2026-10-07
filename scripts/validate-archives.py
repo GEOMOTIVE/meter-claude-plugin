@@ -18,6 +18,14 @@ for archive in archives:
         names = z.namelist()
         assert len(names) == len(set(names)), "duplicate archive entries"
         assert z.testzip() is None
+        # Verify what each client actually receives, including the nested Codex
+        # package in the Claude archive, rather than only checking ZIP validity.
+        skill_prefix = "" if "openai-skills" in archive.name else "skills/meter/"
+        for relative in ("SKILL.md", "references/excel-export.md"):
+            expected = (root / "skills/meter" / relative).read_bytes()
+            assert z.read(skill_prefix + relative) == expected, (archive.name, relative, "stale skill")
+            if "claude" in archive.name:
+                assert z.read("plugins/meter/skills/meter/" + relative) == expected, (archive.name, relative, "stale nested Codex skill")
         for name in names:
             assert not name.startswith("/") and ".." not in PurePosixPath(name).parts
             assert not any(part in (".git", ".env", "node_modules", "src", "hooks") for part in PurePosixPath(name).parts)

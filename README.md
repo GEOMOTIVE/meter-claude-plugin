@@ -36,9 +36,11 @@ Use the plugin's released ZIP with Cowork's plugin upload flow, or install from 
 - “Find up to three available inventory records in Ташкент. Show their METER IDs, addresses and actual OOH/DOOH classification.”
 - “Calculate the audience Universe in Ташкент for ages 20–45, all genders and income abc, for 1–31 August 2026.”
 - “Using those exact surface IDs, calculate legacy OTS and Reach for the same audience and period. Label modeled contacts separately from unique audience.”
-- “Create an XLSX address program from those results, with a summary and an inventory table.”
+- “Create an XLSX address program from those results, with campaign totals, an inventory table and a numbered city map.”
 
 Use a city and period covered by your account. Spreadsheet creation depends on file-authoring tools available in your client; this package does not install a spreadsheet runtime.
+
+Client-ready address programs include a city map whose point numbers match the inventory table, unless a table-only export was requested. Missing coordinates, a basemap or authoring capabilities must be disclosed as an incomplete export. See the [export contract](skills/meter/references/excel-export.md).
 
 ## Calculation behavior
 

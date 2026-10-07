@@ -21,6 +21,7 @@ jobs:
       - run: npx --yes @anthropic-ai/claude-code@2.1.212 plugin validate .claude-plugin/marketplace.json
       - run: npx --yes @openai/codex@0.153.4 plugin marketplace add . --json
       - run: npx --yes @openai/codex@0.153.4 plugin add meter@meter-public --json
+      - run: python3 scripts/validate-installed-codex.py
       - uses: actions/upload-artifact@v4
         with:
           name: meter-packages
