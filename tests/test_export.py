@@ -318,6 +318,22 @@ class SavedExportTests(unittest.TestCase):
             saved_fixture(file, bundle, mutate)
             self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
 
+    def test_json_number_spelling_roundtrips_but_boolean_and_string_substitution_fail(self):
+        bundle = self.fixture()
+        bundle["brief"]["parameters"]["normalizeCoeff"] = 0.0
+        for replacement in ('0', 'false', '"0"'):
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as directory:
+                file = Path(directory) / "controls.xlsx"
+                def mutate(files):
+                    files["xl/worksheets/sheet1.xml"] = files["xl/worksheets/sheet1.xml"].replace(
+                        '"normalizeCoeff": 0.0', '"normalizeCoeff": ' + replacement)
+                saved_fixture(file, bundle, mutate)
+                if replacement == '0':
+                    self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
+                else:
+                    with self.assertRaisesRegex(verify.VerificationError, "controls mismatch"):
+                        verify.verify(bundle, file)
+
     def test_saved_id_formula_error_and_missing_image_relationship_are_rejected(self):
         for replacement in ('<c r="B6" t="inlineStr"><is><t>99</t></is></c>', '<c r="B6"><f>1</f><v>1</v></c>', '<c r="B6" t="e"><v>#REF!</v></c>'):
             bundle = self.fixture()
