@@ -50,6 +50,8 @@ Campaign Reach optimization compares whole-program calculations under a persiste
 
 Program preparation also checks inventory status and conflicting static/digital metadata before selection. An optional local helper calculates a sourced or explicitly assumed budget by component and range; missing prices remain unavailable, and placement availability remains unconfirmed. See [inventory and budget](skills/meter/references/inventory-budget.md).
 
+The local [XLSX builder](skills/meter/references/export-builder.md) binds the final campaign IDs to the table, editable budget and embedded numbered map. It uses available client authoring tools and cached attributed tiles, adds readable detail panels for dense points and checks the saved workbook. Missing map inputs or prices remain explicit partial results; it fetches no basemap and installs no renderer.
+
 Historical small-scenario API measurements were roughly <1 second for simple queries, 1–3 seconds for selection/legacy calculations, 6–8 seconds for New OTS, and 12–15 seconds for some breakdowns. These exclude OAuth and remote MCP overhead and are not an SLA. See [method timings and limitations](skills/meter/references/performance.md).
 
 ## Troubleshooting
@@ -64,7 +66,7 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Data and security
 
-The package contains instructions, branding, one HTTPS MCP configuration and optional Python helpers for checking local campaign ledgers and inventory/budget models. The helpers use no network or credentials. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
+The package contains instructions, branding, one HTTPS MCP configuration and optional local helpers for campaign validation, budgets and XLSX exports. Helpers use no network or credentials; export helpers write only explicitly named new local outputs. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
 
 ## Development and review
 
