@@ -2,6 +2,7 @@
 """Validate a local METER comparison ledger; no network or credential access."""
 import argparse
 from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import math
@@ -175,6 +176,17 @@ def summarize(ledger):
             require(cost["status"] in ("estimate", "confirmed"), f"{name}: invalid cost status")
             require(brief["budget_mode"] != "confirmed" or cost["status"] == "confirmed", f"{name}: estimated cost under confirmed-price policy")
             require(cap is None or amount <= cap, f"{name}: spending cap exceeded")
+            if "surface_ids" in cost or "campaign_parameters" in cost:
+                require(cost.get("surface_ids") == request["surfaces"], f"{name}: budget roster differs from campaign")
+                require(canonical(cost.get("campaign_parameters")) == canonical(parameters), f"{name}: budget parameters differ from campaign")
+                nonblank(cost.get("source_reference"), f"{name}.cost.source_reference")
+            if "amount_decimal" in cost:
+                exact = Decimal(cost["amount_decimal"])
+                require(exact.is_finite() and exact == Decimal(str(amount)), f"{name}: cost amount lost decimal precision")
+            if "low" in cost or "high" in cost:
+                low, high = (Decimal(str(cost.get(k))) for k in ("low", "high"))
+                require(low.is_finite() and high.is_finite() and Decimal(0) <= low <= Decimal(str(amount)) <= high,
+                        f"{name}: invalid cost scenario range")
         if status == "planned":
             require(scenario.get("result") is None, f"{name}: planned scenario has a result")
             continue
@@ -224,6 +236,8 @@ def summarize(ledger):
             limitations.append("Budget and any cost-based feasibility use estimates.")
         elif not cost and brief["budget_mode"] != "none":
             limitations.append("Requested budget is not yet available.")
+        if cost and "surface_ids" not in cost:
+            limitations.append("Cost provenance is not bound to the exact campaign request.")
         recommendation = {
             "name": best["name"], "surface_ids": best["request"]["surfaces"],
             "reach_percent": result["reach_fraction"] * 100,
@@ -248,7 +262,7 @@ def main():
     try:
         output = summarize(json.loads(args.ledger.read_text(encoding="utf-8")))
         print(json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False))
-    except (LedgerError, KeyError, TypeError, ValueError, OSError) as exc:
+    except (LedgerError, KeyError, TypeError, ValueError, InvalidOperation, OSError) as exc:
         print(f"Invalid campaign ledger: {exc}", file=sys.stderr)
         return 2
     return 0
