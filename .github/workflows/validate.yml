@@ -26,6 +26,11 @@ jobs:
       - run: npx --yes @openai/codex@0.153.4 plugin marketplace add . --json
       - run: npx --yes @openai/codex@0.153.4 plugin add meter@meter-public --json
       - run: python3 scripts/validate-installed-codex.py
+      - name: Verify task workflow through installed Codex skill
+        run: |
+          package_version=$(python3 -c 'import json; print(json.load(open(".claude-plugin/plugin.json"))["version"])')
+          codex_storage="${CODEX_HOME:-$HOME/.codex}"
+          METER_WORKFLOW_SKILL_DIRECTORY="$codex_storage/plugins/cache/meter-public/meter/$package_version/skills/meter" PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p test_workflow.py -v
       - uses: actions/upload-artifact@v4
         with:
           name: meter-packages

@@ -340,7 +340,13 @@ def calculate(model):
         if extra["unit"] == "fraction":
             applies = extra["applies_to"]
             check(isinstance(applies, list) and bool(applies) and len(applies) == len(set(applies)), "fraction requires unique applies_to components")
-            check(set(applies) <= included and component not in applies, "fraction base must name previously calculated components")
+            processed = included | {item["component"] for item in missing}
+            check(set(applies) <= processed and component not in applies, "fraction base must name previously processed components")
+            if not set(applies) & included:
+                missing.append({"id": None, "component": component, "reason": "missing_fraction_base_rates"})
+                continue
+            # With missing rates this is the fraction of known amounts only;
+            # missing_costs still prevents a complete total or bound ledger_cost.
             base = {k: sum((totals[c][k] for c in applies), Decimal(0)) for k in rate}
         cost = {k: (rate[k] * base[k]).quantize(quantum, rounding=ROUND_HALF_UP) for k in rate}
         for k in cost:
@@ -352,7 +358,8 @@ def calculate(model):
                            "base_amounts": {k: money(v) for k, v in base.items()}, "applies_to": extra.get("applies_to"),
                            "amounts": {k: money(v) for k, v in cost.items()}, "status": extra["status"],
                            "source_reference": extra["source_reference"], "basis": extra["basis"]})
-    missing.extend({"id": None, "component": c, "reason": "missing_component"} for c in sorted(required - included - PER_SURFACE))
+    missing.extend({"id": None, "component": c, "reason": "missing_component"}
+                   for c in sorted(required - included - PER_SURFACE - {item["component"] for item in missing}))
     subtotal = {k: sum((totals[c][k] for c in COMPONENTS), Decimal(0)) for k in ("low", "base", "high")}
     complete = bool(selected) and not missing
     status = "estimate" if "estimate" in statuses else "confirmed"

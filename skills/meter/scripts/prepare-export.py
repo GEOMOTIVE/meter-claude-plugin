@@ -41,6 +41,8 @@ def prepare(ledger, model):
     if requested_budget:
         require("media" in model["required_components"], "requested budget must include media")
         cost = final.get("cost")
+        require(not normalized["budget_complete"] or cost is not None,
+                "bind the complete budget ledger_cost to the retained final scenario before exporting")
         if cost is not None:
             bound = normalized["ledger_cost"]
             require(bound is not None, "final ledger has a total but export budget is incomplete")
