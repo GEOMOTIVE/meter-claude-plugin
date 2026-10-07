@@ -4,6 +4,7 @@ Read this for program selection, contradictory surface metadata or a requested c
 
 ## Normalize before selecting
 
+- Preserve the inventory `cntry` ISO alpha-2 country code and original `country` display name. Keep the submitted `countryCode` in campaign parameters; localized names do not override ISO identity. Conflicting duplicate or malformed codes require review.
 - Preserve source records and their warnings. Deduplicate by stable METER ID, not by address, coordinates or a physical-construction group: distinct sides/cards can share a location and still be separate API surfaces. Report the counting unit. Complete pagination or label the eligible pool partial/screened.
 - Normalize `isDigital` / `is_digital` deliberately: integer `0` and string `"false"` mean false, not truthy. Missing or invalid flags are unknown. A general type such as Billboard or Bus stop alone does not establish static inventory. Explicit LED/digital labels can establish digital evidence; contradictions with a structured flag require review. `Mediafacade` with a false digital flag also requires review, rather than silently selecting a static tariff.
 - Preserve dismantled/inactive source markers and exclude affected cards from a proposed buy. A positive active/verified flag or a returned record does not confirm available placement. Retain availability as unconfirmed unless a separate authorized source explicitly confirms it. Negated text such as “не демонтирован” is not a dismantled marker.
@@ -30,7 +31,7 @@ Use the bundled [inventory-budget.py](../scripts/inventory-budget.py) when local
 python3 /path/to/meter/scripts/inventory-budget.py /absolute/artifacts/budget-model.json
 ```
 
-The example below is a **synthetic executable fixture**, not a suggested price or default budget. Replace the records, amounts, references and assumptions with the task's actual inputs. Copy `campaign.parameters` from the campaign brief: the complete submitted body except `surfaces`. Leave `selected_ids` empty to inspect inventory before selection. `dimension_unit` is `m` only for sourced physical dimensions, otherwise `unknown`. An unknown unit prevents area calculations.
+The example below is a **synthetic executable fixture**, not a suggested price or default budget. Replace the records, amounts, references and assumptions with the task's actual inputs. Copy `campaign.parameters` from the campaign brief: the complete submitted body except `surfaces`. Leave `selected_ids` empty to inspect inventory before selection, retaining fractional extras. Declared required/priced per-surface components are valid dependencies at this stage, but their fractions remain unavailable until there are known amounts; no empty-selection total is bound. `dimension_unit` is `m` only for sourced physical dimensions, otherwise `unknown`. An unknown unit prevents area calculations.
 
 ```json
 {
@@ -41,13 +42,13 @@ The example below is a **synthetic executable fixture**, not a suggested price o
   "campaign": {
     "currency": "UZS", "money_decimals": 2,
     "parameters": {
-      "city": "Ташкент", "periodFrom": "2026-08-01", "periodTo": "2026-08-31",
+      "city": "Ташкент", "countryCode": "UZ", "periodFrom": "2026-08-01", "periodTo": "2026-08-31",
       "audience": {"age_from": 18, "age_to": 55, "gender": "all", "income": "bc"},
       "blockSize": 0, "chrono": 10, "outputsInBlock": 1, "byDays": false,
       "impressions": [-1], "normalizeCoeff": 0.3, "reachModel": "nbd-dirichlet"
     }
   },
-  "records": [{"id": 101, "isDigital": 0, "type": "Billboard", "dimension": "3x6"}],
+  "records": [{"id": 101, "cntry": "UZ", "country": "Узбекистан", "isDigital": 0, "type": "Billboard", "dimension": "3x6"}],
   "selected_ids": [101], "required_components": ["media"],
   "price_rules": [{
     "match": {"media_class": "static", "type": "Billboard", "dimension": "3x6"},

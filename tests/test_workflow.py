@@ -71,7 +71,7 @@ def fixture():
                  "applies_to": ["media", "production", "installation"], "amounts": {"low": "0.1", "base": "0.1", "high": "0.1"},
                  "status": "estimate", "source_reference": "synthetic-prices.json", "basis": "Synthetic regression reserve"}]}
     # Discover the pool before a roster exists; a reserve has no priced base yet.
-    normalized = budget.calculate({**model, "extras": []})
+    normalized = budget.calculate(model)
     ledger = {"schema_version": 1,
               "brief": {"country": "Uzbekistan", "tool": "meter_ots_reach", "parameters": parameters,
                         "objective": {"metric": "campaign_reach_n_plus", "frequency": 5},

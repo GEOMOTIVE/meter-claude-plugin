@@ -120,7 +120,7 @@ def normalize(records, overrides, dimension_unit):
                 blocked |= bool(BLOCKED.search(remainder))
                 if message.strip():
                     warnings.append(message.strip())
-            for field in ("city", "address", "type", "supplierId", "side", "dimension", "lat", "lng"):
+            for field in ("city", "cntry", "address", "type", "supplierId", "side", "dimension", "lat", "lng"):
                 value = source.get(field)
                 if value is not None and value != "":
                     if field == "dimension":
@@ -134,6 +134,8 @@ def normalize(records, overrides, dimension_unit):
                             continue
                     else:
                         value = str(value).strip().casefold()
+                        if field == "cntry" and not re.fullmatch(r"[a-z]{2}", value):
+                            review.append("invalid_country_code")
                     values[field].add(value)
         # A missing field in one response is complementary data, not a conflict.
         coordinate_conflict = any(len(values[f]) > 1 for f in ("lat", "lng"))
@@ -155,7 +157,7 @@ def normalize(records, overrides, dimension_unit):
         if media_class == "unknown":
             review.append("unknown_media_classification")
         metadata = {field: next((s[field] for s in sources if s.get(field) is not None and s.get(field) != ""), None)
-                    for field in ("city", "country", "address", "type", "supplierId", "side", "dimension", "lat", "lng")}
+                    for field in ("city", "country", "cntry", "address", "type", "supplierId", "side", "dimension", "lat", "lng")}
         size = dimensions(metadata["dimension"])
         source_units = {str(s["dimension_unit"]).strip().lower() for s in sources if s.get("dimension_unit")}
         row_unit = dimension_unit if not source_units else "m" if source_units == {"m"} else "unknown"
@@ -341,6 +343,11 @@ def calculate(model):
             applies = extra["applies_to"]
             check(isinstance(applies, list) and bool(applies) and len(applies) == len(set(applies)), "fraction requires unique applies_to components")
             processed = included | {item["component"] for item in missing}
+            if not selected:
+                # Inspection precedes roster selection. Declared surface costs
+                # have no amounts yet, but remain valid fractional dependencies.
+                processed |= required & PER_SURFACE
+                processed |= {rule["component"] for rule, _ in rules}
             check(set(applies) <= processed and component not in applies, "fraction base must name previously processed components")
             if not set(applies) & included:
                 missing.append({"id": None, "component": component, "reason": "missing_fraction_base_rates"})
