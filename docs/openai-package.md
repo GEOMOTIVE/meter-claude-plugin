@@ -17,6 +17,10 @@ Open a new task after installation so the client loads the current plugin's skil
 
 The configured server is `https://mcp.meter.ad/meter/mcp`. No API key, server process, database access, port forwarding or environment variables are needed for this public package.
 
+## Connection diagnostics
+
+For missing tools, multiple METER entries, failed calls or version questions, use the [diagnostics guide](../skills/meter/references/diagnostics.md). Identify this package's connection before using a prefixed tool. A separate QA connector or conversation result is not an installed duplicate. The embedded version resource identifies the containing files; the installed package, loaded skill and MCP server versions require their own observations. The optional local classifier reads one retained snapshot without network calls, retries or changes to the client.
+
 ## ChatGPT preparation
 
 METER uses the **With MCP** submission path, with the same public endpoint and the bundled skill. Uploading skills alone does not connect the METER service. The publisher must enter the MCP URL, configure OAuth, verify the domain and complete OpenAI review. This repository is not evidence of directory approval.

@@ -4,6 +4,8 @@ The public package includes Markdown instructions, images, the MCP endpoint conf
 
 When the assistant calls METER, the tool arguments can include city/country, campaign dates, surface IDs, audience filters and broadcast parameters. METER returns inventory information and modeled aggregate media metrics to the assistant. The OAuth flow connects the user to their METER account and its existing permissions. Do not include individual-level sensitive data or credentials in prompts or tool arguments.
 
+The diagnostic helper reads one client-retained JSON snapshot and its bundled package version resource. It does not inspect credentials, contact a service or alter the connection. Output is limited to recognized categories, actions, numeric status evidence and explicitly sourced version values; raw messages, bodies, notes and local provenance references are not echoed. Snapshot files remain subject to the client's storage controls and should contain no credentials.
+
 Conversation data is handled according to your client provider's applicable policies and your plan/settings (Anthropic for Claude; OpenAI for ChatGPT and Codex). METER service processing is governed by your METER service agreement and applicable service privacy terms. This package does not establish or change those terms, promise a retention period, or claim that hosted systems do not log requests. Ask your METER account administrator for the applicable service privacy policy and data-processing terms before use.
 
 Local exports are created by the client tools the user chooses. The skill does not instruct automatic upload to third-party services. Public GitHub issues are suitable only for non-sensitive package defects. Use the private security reporting channel for security issues.

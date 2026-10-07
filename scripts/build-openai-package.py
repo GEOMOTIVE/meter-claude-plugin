@@ -11,6 +11,13 @@ args = argparse.ArgumentParser()
 args.add_argument("--check", action="store_true", help="Fail when committed generated files differ")
 check = args.parse_args().check
 source_manifest = json.loads((root / ".claude-plugin/plugin.json").read_text())
+version_file = root / "skills/meter/references/package-version.json"
+version_bytes = (json.dumps({"schema_version": 1, "package": "meter@meter-public", "version": source_manifest["version"]}, indent=2) + "\n").encode()
+if check:
+    if not version_file.is_file() or version_file.read_bytes() != version_bytes:
+        raise SystemExit("Skill package-version.json differs from the source manifest")
+else:
+    version_file.write_bytes(version_bytes)
 manifest = {k: source_manifest[k] for k in ("name", "version", "description", "author", "homepage", "repository", "keywords")}
 manifest.update({
     "skills": "./skills/",
