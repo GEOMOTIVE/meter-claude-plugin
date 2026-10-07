@@ -21,8 +21,15 @@ for archive in archives:
         # Verify what each client actually receives, including the nested Codex
         # package in the Claude archive, rather than only checking ZIP validity.
         skill_prefix = "" if "openai-skills" in archive.name else "skills/meter/"
-        for relative in ("SKILL.md", "references/excel-export.md"):
-            expected = (root / "skills/meter" / relative).read_bytes()
+        skill_root = root / "skills/meter"
+        skill_files = {str(p.relative_to(skill_root)): p.read_bytes() for p in skill_root.rglob("*") if p.is_file()}
+        packaged_skill = {name[len(skill_prefix):] for name in names if name.startswith(skill_prefix)}
+        assert packaged_skill == set(skill_files), (archive.name, "incomplete or extra skill resources")
+        if "claude" in archive.name:
+            nested_prefix = "plugins/meter/skills/meter/"
+            nested_skill = {name[len(nested_prefix):] for name in names if name.startswith(nested_prefix)}
+            assert nested_skill == set(skill_files), (archive.name, "incomplete or extra nested skill resources")
+        for relative, expected in skill_files.items():
             assert z.read(skill_prefix + relative) == expected, (archive.name, relative, "stale skill")
             if "claude" in archive.name:
                 assert z.read("plugins/meter/skills/meter/" + relative) == expected, (archive.name, relative, "stale nested Codex skill")

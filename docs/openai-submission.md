@@ -10,7 +10,7 @@ METER uses one **With MCP** submission for the shared ChatGPT/Codex directory. T
 - [Reviewer test and demo runbook](reviewer-test-runbook.md): the eight submission prompts, acceptance criteria and recording sequence; dedicated-account execution is still pending.
 - [Review findings](openai-review-findings.md): server metadata and privacy review notes.
 
-Build from reviewed source using `python3 scripts/build-openai-package.py`. Check reproducibility with `python3 scripts/build-openai-package.py --check`. Generate ZIP archives using `python3 scripts/package-releases.py`; upload the skills archive in the **Skills** section of the same **With MCP** draft. The skills archive contains `SKILL.md` at its root and the skill’s unchanged `references/` directory. The portal did not attach the previous archive with a Codex plugin wrapper. Enter the endpoint and OAuth settings separately in the portal; use the Codex archive for local plugin installation.
+Build from reviewed source using `python3 scripts/build-openai-package.py`. Check reproducibility with `python3 scripts/build-openai-package.py --check`. Generate ZIP archives using `python3 scripts/package-releases.py`; upload the skills archive in the **Skills** section of the same **With MCP** draft. The skills archive contains `SKILL.md` at its root and the skill's unchanged supporting references and scripts. The portal did not attach the previous archive with a Codex plugin wrapper. Enter the endpoint and OAuth settings separately in the portal; use the Codex archive for local plugin installation.
 
 ## Portal field guide
 
@@ -36,7 +36,7 @@ The submitter needs Apps Management write access. Complete the portal's domain c
 
 Submit only after server review findings and client tests are resolved. A package validation pass does not establish reviewer account readiness, OAuth interoperability on every client, legal readiness, submission or approval. After approval, publication is a separate action in the portal.
 
-Version 0.2.1 corrects the upload packaging and a documentation link; hosted tools and calculation instructions are unchanged. Version 0.2.2 adds the corrected calculation and reporting instructions: explicit legacy audience gender, same-method recovery, preserved campaign controls, clear projected metrics, and inventory availability warnings. Version 0.3.0 adds Wallet subscription onboarding and pricing disclosures. Use archives built from 0.3.0 for a new upload. Earlier release assets are retained unchanged. A package release does not update an existing portal upload or establish that live client replay passed.
+Version 0.2.1 corrects the upload packaging and a documentation link; hosted tools and calculation instructions are unchanged. Version 0.2.2 adds the corrected calculation and reporting instructions: explicit legacy audience gender, same-method recovery, preserved campaign controls, clear projected metrics, and inventory availability warnings. Version 0.3.0 adds Wallet subscription onboarding and pricing disclosures. For a new upload, build archives from the reviewed version intended for submission, including its current skills and helpers. Earlier release assets are retained unchanged. A package release does not update an existing portal upload or establish that live client replay passed.
 
 ## Current scope
 

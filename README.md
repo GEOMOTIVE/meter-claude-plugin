@@ -46,6 +46,8 @@ Client-ready address programs include a city map whose point numbers match the i
 
 There are 16 METER tools. Legacy OTS is used when New OTS coverage is unknown. New OTS availability varies by geography and inventory. A `no_data` result means data is unavailable for that request, not zero; when permitted by the brief, the skill tries legacy once and names the methodology used.
 
+Campaign Reach optimization compares whole-program calculations under a persisted brief. The optional local ledger checker detects changed requests and selects the best recorded feasible result; it is not a hosted optimizer or proof of global optimality. See [campaign planning](skills/meter/references/campaign-planning.md).
+
 Historical small-scenario API measurements were roughly <1 second for simple queries, 1–3 seconds for selection/legacy calculations, 6–8 seconds for New OTS, and 12–15 seconds for some breakdowns. These exclude OAuth and remote MCP overhead and are not an SLA. See [method timings and limitations](skills/meter/references/performance.md).
 
 ## Troubleshooting
@@ -60,7 +62,7 @@ Historical small-scenario API measurements were roughly <1 second for simple que
 
 ## Data and security
 
-The package contains instructions, branding and one HTTPS MCP configuration. It installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
+The package contains instructions, branding, one HTTPS MCP configuration and an optional Python helper for checking local campaign ledgers. The helper uses no network or credentials. The package installs no executable hooks, local MCP server or database connector. Calculation inputs and results pass between your assistant client and METER. Authentication is handled through OAuth; never put passwords or tokens in prompts or GitHub issues. See [data handling](docs/data-handling.md) and [security reporting](SECURITY.md).
 
 ## Development and review
 
@@ -68,6 +70,7 @@ The package contains instructions, branding and one HTTPS MCP configuration. It 
 claude plugin validate .claude-plugin/plugin.json
 claude plugin validate .claude-plugin/marketplace.json
 python3 scripts/validate-package.py
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 ```
 
 See [reviewer scenarios](docs/reviewer-guide.md) and [verification evidence](docs/verification.md). This repository contains only the client plugin; hosted METER services and datasets are separate.

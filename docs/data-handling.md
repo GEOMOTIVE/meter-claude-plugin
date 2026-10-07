@@ -1,6 +1,6 @@
 # Data handling for the METER plugin
 
-The public package includes Markdown instructions, images, and the MCP endpoint configuration. It contains no credentials and runs no install/startup hooks. It adds no separate telemetry or local database.
+The public package includes Markdown instructions, images, the MCP endpoint configuration and an optional Python campaign-ledger checker. The checker reads a user-supplied local JSON file and prints validation/selection results; it does not modify the file, use credentials or send network requests. Campaign artifacts remain subject to the client's file-storage controls. The package contains no credentials and runs no install/startup hooks. It adds no separate telemetry or local database.
 
 When the assistant calls METER, the tool arguments can include city/country, campaign dates, surface IDs, audience filters and broadcast parameters. METER returns inventory information and modeled aggregate media metrics to the assistant. The OAuth flow connects the user to their METER account and its existing permissions. Do not include individual-level sensitive data or credentials in prompts or tool arguments.
 

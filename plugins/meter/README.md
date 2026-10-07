@@ -34,6 +34,8 @@ Use geography covered by your METER account. The skill checks current tool schem
 
 Client-ready address programs include a map unless the user requests a table-only export. The map and address table use the same sourced coordinates and sequence-to-ID mapping. Missing map inputs or tools must be disclosed; the public package supplies no monitoring heatmap or operator prices. See [Excel export requirements](skills/meter/references/excel-export.md).
 
+For “maximize Reach 5+ with at most 80 surfaces,” the skill compares complete campaigns and retains the brief and tested variants. A surface ranking is only a starting point. The optional local Python ledger checker validates recorded requests and results without calling METER; client file execution is required to use it. See [campaign planning](skills/meter/references/campaign-planning.md). Results are the best among tested feasible programs, with search and price limitations disclosed.
+
 See [metric definitions](skills/meter/references/metrics.md), [routing](skills/meter/references/api-routing.md), [response-time expectations](skills/meter/references/performance.md), [data handling](docs/data-handling.md), and [OpenAI verification evidence](docs/openai-verification.md).
 
 ## Source and support
