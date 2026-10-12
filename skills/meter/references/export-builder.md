@@ -14,6 +14,14 @@ Preparation/verification need Python 3.10+. Maps additionally need Pillow 10.1+ 
 
 Helpers read local JSON and write only new explicitly named local outputs. Existing bundle directories/workbooks are rejected. They never fetch tiles, make network requests, install packages, call METER or send coordinates elsewhere. Retain raw source files separately; workbooks contain selected metadata and references rather than account/session dumps. Source provenance and attribution are client-reported, not authenticated by the helpers.
 
+### Optional contact metrics
+
+Retain available campaign contacts as `ots` and `lts` on the final scenario's `result`. Values must be finite nonnegative numbers below `1e15`; omitted/null values remain `n.a.`, while zero remains zero. These are projected contacts, not scheduled plays. Do not derive campaign contacts by summing unrelated inventory-ranking values.
+
+For available per-surface contacts, add an optional `surface_metrics` object to that same final scenario. It contains `methodology` (`legacy` or `new_ots`, matching the final result), `request` (the exact full final campaign request, including ordered IDs and controls), `source_reference` (the retained equivalent per-surface calculation), and `rows`, such as `[{"id": 101, "ots": 12345, "lts": 6789}]`. Establish that the source calculation used that exact campaign setup before recording this binding. Duplicate/unknown IDs, changed parameters or methodology are rejected. A missing row or metric remains unavailable; inventory discovery/ranking contacts are never substituted. As with the ledger, these source references are client-reported, not authenticated by the helper.
+
+The summary displays campaign OTS/LTS, inventory coverage, all retained selection limitations and the search stopping reason. The address table includes per-surface OTS/LTS and their shared source reference. The saved-file verifier checks these values and disclosures, including zero versus unavailable.
+
 ## Basemap
 
 Supply cached **real**, attributed Web Mercator PNG tiles, 256×256 pixels, named `ZOOM_X_Y.png`. Do not substitute a blank grid, invented roads or a map carrying another program's markers. Example configuration, replacing paths with existing local resources:
@@ -49,4 +57,4 @@ Visible sheets: **Карта и итог**, **Адресная программ�
 
 The verifier reads this builder's **saved XLSX**, comparing ordered IDs, city, typed period dates, audience, Reach N+ frequency label, methodology, controls and map/budget disclosures as well as campaign metrics, coordinates, cost formulas/cached amounts, filters/panes and actual embedded map relationships/bytes. Missing images, external relationships, source text interpreted as formulas and Excel error cells fail. It checks this layout, not arbitrary templates or source authenticity.
 
-Inspect every sheet preview and all map panels at normal scale. Some previews omit images; ZIP relationships and rendered maps establish inclusion, while a native viewer establishes appearance there. Do not claim native Excel recalculation unless tested there. `tests/check-export-runtime.mjs` exercises actual export, rate/blank changes and overwrite rejection with externally supplied paths. Public CI tests preparation/maps/verification; it has no client-specific authoring runtime.
+Inspect every sheet preview and all map panels at normal scale. Some previews omit images; ZIP relationships and rendered maps establish inclusion, while a native viewer establishes appearance there. Do not claim native Excel recalculation unless tested there. `tests/check-export-runtime.mjs` exercises actual export and saved-file verification, contact/limitation retention, symlink CLI invocation, rate/blank changes and overwrite rejection. Run it with external paths: `node tests/check-export-runtime.mjs <copied-builder.mjs> <export.json> <new-output.xlsx> <verify-export.py> <python>`. Public CI tests preparation/maps/verification; it has no client-specific authoring runtime.

@@ -2,7 +2,7 @@
 """Check the actual saved XLSX against its prepared METER export bundle."""
 import argparse
 from collections import Counter
-from datetime import date
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 import hashlib
 import json
@@ -91,6 +91,26 @@ def verify(bundle, filename):
         ids = [r["id"] for r in rows]
         require(ids == bundle["summary"]["best"]["surface_ids"], "bundle roster mismatch")
         address = cells(sheets["Адресная программа"])
+
+        def metric(saved, ref, expected):
+            cell = saved.get(ref, {})
+            require(cell.get("formula") is None, "contacts must be literal at " + ref)
+            if expected is None:
+                require(cell.get("type") in ("s", "inlineStr", "str") and cell.get("value") == "n.a.",
+                        "missing contacts must remain unavailable at " + ref)
+            else:
+                require(type(expected) in (int, float) and 0 <= expected < 1e15 and cell.get("type") == "n",
+                        "contacts must be numeric at " + ref)
+                close(cell.get("value"), expected, "projected contacts mismatch at " + ref)
+
+        for col, key in (("M", "ots"), ("N", "lts")):
+            require(address.get(col + "5", {}).get("value") == key.upper() + ": прогноз контактов",
+                    "contact column label mismatch")
+        metric_source = bundle.get("surface_metrics_source_reference")
+        source_label = "OTS/LTS: " + metric_source if metric_source else "OTS/LTS поверхностей: данные не предоставлены"
+        source_cell = address.get("A4", {})
+        require(source_cell.get("formula") is None and source_cell.get("value") in (source_label, "'" + source_label),
+                "surface metrics provenance mismatch")
         stored = []
         for i, row in enumerate(rows, 6):
             id_cell = address.get(f"B{i}", {})
@@ -114,6 +134,8 @@ def verify(bundle, filename):
                     close(actual, coords[key], "coordinate mismatch")
                 else:
                     require(actual in (None, ""), "missing coordinate replaced with a number")
+            for col, key in (("M", "ots"), ("N", "lts")):
+                metric(address, f"{col}{i}", row.get("metrics", {}).get(key))
         require(stored == ids, "saved address roster/order differs from campaign")
         extra_ids = [cell["value"] for ref, cell in address.items() if ref.startswith("B") and ref[1:].isdigit() and int(ref[1:]) >= len(rows) + 6 and cell["value"] not in (None, "")]
         require(not extra_ids, "unexpected additional address records")
@@ -148,7 +170,11 @@ def verify(bundle, filename):
             cell = summary.get(ref, {})
             require(cell.get("formula") is None, "campaign date must be literal at " + ref)
             if cell.get("type") == "d":
-                require(cell.get("value") in (parameters[key], parameters[key] + "T00:00:00Z"),
+                value = cell.get("value") or ""
+                parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                require(parsed.date() == date.fromisoformat(parameters[key])
+                        and parsed.time() == time(0)
+                        and parsed.utcoffset() in (None, timedelta(0)),
                         "campaign date mismatch at " + ref)
             else:
                 require(cell.get("type") == "n", "campaign date must be stored as an Excel date at " + ref)
@@ -159,6 +185,13 @@ def verify(bundle, filename):
         literal("B15", "полная" if bundle["map"]["complete"] else "частичная: " + str(bundle["map"].get("reason")))
         literal("B16", "Наличие не подтверждено")
         literal("B18", bundle["budget"]["budget_status"] if bundle["budget"] else "не запрошен")
+        literal("A21", "OTS: прогноз контактов")
+        literal("A22", "LTS: прогноз контактов")
+        metric(summary, "B21", bundle["result"].get("ots"))
+        metric(summary, "B22", bundle["result"].get("lts"))
+        literal("B23", {"complete": "полный", "screened": "отобранная часть", "partial": "неполная выгрузка"}[bundle["summary"]["inventory_coverage"]])
+        literal("B24", "\n".join(bundle["limitations"]))
+        literal("B25", bundle["summary"]["stop_reason"])
         close(summary["B7"]["value"], len(ids), "summary surface count mismatch")
         close(summary["B8"]["value"], bundle["result"]["reach_fraction"], "campaign Reach mismatch")
         close(summary["B9"]["value"], bundle["result"]["universe"], "campaign Universe mismatch")

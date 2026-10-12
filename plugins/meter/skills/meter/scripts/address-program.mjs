@@ -3,7 +3,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const require = (condition, message) => { if (!condition) throw new Error(message); };
 const text = value => {
@@ -12,6 +12,11 @@ const text = value => {
   return /^[=+@'-]/.test(s) ? "'" + s : s;
 };
 const number = value => { const n = Number(value); require(value !== '' && value != null && Number.isFinite(n) && Math.abs(n) < 1e15, 'invalid or oversized Excel number'); return n; };
+const contacts = value => {
+  if (value == null) return 'n.a.';
+  require(typeof value === 'number' && value >= 0, 'invalid projected contacts');
+  return number(value);
+};
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canonical(v[k])])) : v;
 const same = (a, b) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 
@@ -83,9 +88,15 @@ export async function build(bundlePath, outputPath, { previewDirectory = null } 
     ['Бюджет', budgetData ? text(budgetData.budget_status) : 'не запрошен'],
     ['Стоимость программы', budgetData ? null : 'не рассчитывалась'],
     ['Известная часть бюджета', budgetData ? null : 'не рассчитывалась'],
+    ['OTS: прогноз контактов', contacts(data.result.ots)],
+    ['LTS: прогноз контактов', contacts(data.result.lts)],
+    ['Полнота инвентаря', text({ complete: 'полный', screened: 'отобранная часть', partial: 'неполная выгрузка' }[data.summary.inventory_coverage])],
+    ['Ограничения расчёта', text(data.limitations.join('\n'))],
+    ['Причина остановки поиска', text(data.summary.stop_reason)],
   ];
-  style(summary, 'A2:N22');
-  summary.getRange('A2:B20').values = info;
+  const summaryLast = info.length + 1;
+  style(summary, `A2:N${summaryLast}`);
+  summary.getRange(`A2:B${summaryLast}`).values = info;
   summary.getRange('A2').format.font = { name: 'Arial', size: 15, bold: true, color: '#390050' };
   summary.getRange('A3:A20').format.columnWidth = 34;
   summary.getRange('B3:B20').format.columnWidth = 96;
@@ -96,25 +107,36 @@ export async function build(bundlePath, outputPath, { previewDirectory = null } 
   summary.getRange('B4:B5').setNumberFormat('yyyy-mm-dd');
   summary.getRange('B8').setNumberFormat('0.00%');
   summary.getRange('B9:B10').setNumberFormat('#,##0');
+  summary.getRange('B21:B22').setNumberFormat('#,##0');
+  summary.getRange('B21:B22').format.horizontalAlignment = 'right';
+  summary.getRange('A21:A25').format.wrapText = true;
+  summary.getRange('B23:B25').format.wrapText = true;
+  for (let r = 23; r <= summaryLast; r++) {
+    const lines = String(info[r - 2][1]).split('\n').reduce((n, line) => n + Math.max(1, Math.ceil(line.length / 85)), 0);
+    summary.getRange(`A${r}:B${r}`).format.rowHeight = Math.max(38, lines * 18 + 12);
+  }
   summary.getRange('B10').formulas = [['=B8*B9']];
   const start = 6, last = start + ids.length - 1;
-  style(addresses, `A2:L${last + 1}`);
+  style(addresses, `A2:N${last + 1}`);
   addresses.getRange('A2').values = [['Адресная программа']];
   addresses.getRange('A2').format.font = { name: 'Arial', size: 15, bold: true, color: '#390050' };
   addresses.getRange('A3').values = [[text(`METER: ${data.rows[0].source_reference}; расчёт: ${data.result.source_reference}; ${data.result.calculated_at}`)]];
-  addresses.getRange('A5:L5').values = [['№','ID','Адрес','Оператор / ID','Тип','Формат','OOH / DOOH','Сторона','Предупреждения','Наличие','Широта','Долгота']];
-  header(addresses, 'A5:L5');
-  addresses.getRange(`A${start}:L${last}`).values = data.rows.map(r => [r.seq, text(r.id), text(r.metadata.address || 'нет адреса в источнике'), text(r.metadata.supplierId), text(r.metadata.type), text(r.metadata.dimension), r.media_class === 'digital' ? 'DOOH' : 'OOH', text(r.metadata.side), text(r.warnings.join('; ')), 'не подтверждено', r.coordinates?.lat ?? null, r.coordinates?.lng ?? null]);
-  const widths = [6,16,62,20,20,15,14,10,52,22,14,14];
+  addresses.getRange('A4').values = [[text(data.surface_metrics_source_reference ? `OTS/LTS: ${data.surface_metrics_source_reference}` : 'OTS/LTS поверхностей: данные не предоставлены')]];
+  addresses.getRange('A5:N5').values = [['№','ID','Адрес','Оператор / ID','Тип','Формат','OOH / DOOH','Сторона','Предупреждения','Наличие','Широта','Долгота','OTS: прогноз контактов','LTS: прогноз контактов']];
+  header(addresses, 'A5:N5');
+  addresses.getRange(`A${start}:N${last}`).values = data.rows.map(r => [r.seq, text(r.id), text(r.metadata.address || 'нет адреса в источнике'), text(r.metadata.supplierId), text(r.metadata.type), text(r.metadata.dimension), r.media_class === 'digital' ? 'DOOH' : 'OOH', text(r.metadata.side), text(r.warnings.join('; ')), 'не подтверждено', r.coordinates?.lat ?? null, r.coordinates?.lng ?? null, contacts(r.metrics?.ots), contacts(r.metrics?.lts)]);
+  const widths = [6,16,62,20,20,15,14,10,52,22,14,14,22,22];
   widths.forEach((w, i) => addresses.getRangeByIndexes(4, i, ids.length + 1, 1).format.columnWidth = w);
   addresses.getRange(`B${start}:B${last}`).setNumberFormat('@');
   addresses.getRange(`C${start}:J${last}`).format.wrapText = true;
   addresses.getRange(`A${start}:L${last}`).format.rowHeight = 52;
   data.rows.forEach((r, i) => addresses.getRange(`A${start + i}:L${start + i}`).format.rowHeight = Math.max(52, Math.ceil(Math.max(String(r.metadata.address || '').length / 55, r.warnings.join('; ').length / 45)) * 17 + 14));
   addresses.getRange(`K${start}:L${last}`).setNumberFormat('0.000000');
+  addresses.getRange(`M${start}:N${last}`).setNumberFormat('#,##0');
+  addresses.getRange(`M${start}:N${last}`).format.horizontalAlignment = 'right';
   addresses.freezePanes.freezeRows(5);
   addresses.freezePanes.freezeColumns(2);
-  const addressTable = addresses.tables.add(`A5:L${last}`, true, 'AddressProgram');
+  const addressTable = addresses.tables.add(`A5:N${last}`, true, 'AddressProgram');
   addressTable.style = 'TableStyleLight1';
   addressTable.showFilterButton = true;
   let totalRow = null;
@@ -180,7 +202,7 @@ export async function build(bundlePath, outputPath, { previewDirectory = null } 
     summary.getRange('B20').formulas = [[`='Бюджет'!K${totalRow}`]];
     summary.getRange('B19:B20').setNumberFormat(fmt);
   }
-  let imageRow = 22;
+  let imageRow = summaryLast + 2;
   for (const { panel, bytes } of images) {
     summary.images.add({ dataUrl: 'data:image/png;base64,' + bytes.toString('base64'), anchor: { from: { row: imageRow, col: 0 }, extent: { widthPx: panel.width, heightPx: panel.height } } });
     const lastImageRow = imageRow + Math.ceil(panel.height / 32) + 2;
@@ -199,7 +221,7 @@ export async function build(bundlePath, outputPath, { previewDirectory = null } 
   // Independently validate persisted formulas/values using verify-export.py after export.
   if (previewDirectory) {
     await fs.mkdir(previewDirectory, { recursive: true });
-    for (const [sheetName, range, file] of [['Карта и итог','A2:B20','summary.png'],['Адресная программа',`A5:J${Math.min(last, 11)}`,'addresses.png'], ...(budget ? [['Бюджет', `A6:M${Math.min(totalRow + 1, 15)}`, 'budget.png']] : [])]) {
+    for (const [sheetName, range, file] of [['Карта и итог',`A2:B${summaryLast}`,'summary.png'],['Адресная программа',`A5:N${Math.min(last, 11)}`,'addresses.png'], ...(budget ? [['Бюджет', `A6:M${Math.min(totalRow + 1, 15)}`, 'budget.png']] : [])]) {
       const image = await wb.render({ sheetName, range, scale: 1.4 });
       await fs.writeFile(path.join(previewDirectory, file), new Uint8Array(await image.arrayBuffer()));
     }
@@ -215,7 +237,12 @@ export async function build(bundlePath, outputPath, { previewDirectory = null } 
   return { workbook: wb, data, budgetTotalRow: totalRow, formulaInspection: errors.ndjson, outputPath };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+// Imports from stdin/eval have no filesystem entry point; they must stay imports.
+const entryPath = process.argv[1] ? await fs.realpath(process.argv[1]).catch(error => {
+  if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return null;
+  throw error;
+}) : null;
+if (entryPath && await fs.realpath(fileURLToPath(import.meta.url)) === entryPath) {
   const [bundle, output, previewDirectory] = process.argv.slice(2);
   if (!bundle || !output) { console.error('Usage: node address-program.mjs export.json output.xlsx [preview-directory]'); process.exitCode = 2; }
   else try {

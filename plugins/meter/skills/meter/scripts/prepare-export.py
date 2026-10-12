@@ -26,6 +26,16 @@ def load_helper(name):
     return module
 
 
+def contact_metrics(record):
+    metrics = {}
+    for key in ("ots", "lts"):
+        value = record.get(key)
+        require(value is None or type(value) in (int, float) and math.isfinite(value) and 0 <= value < 1e15,
+                key + ": expected nonnegative finite Excel contacts or null")
+        metrics[key] = value
+    return metrics
+
+
 def prepare(ledger, model):
     campaign = load_helper("campaign-ledger")
     inventory = load_helper("inventory-budget")
@@ -34,6 +44,22 @@ def prepare(ledger, model):
     normalized = inventory.calculate(model)
     final = next(s for s in ledger["scenarios"] if s["name"] == ledger["final_scenario"])
     ids = final["request"]["surfaces"]
+    contact_metrics(final["result"])
+    surface_metrics = final.get("surface_metrics")
+    metrics_by_id = {}
+    if surface_metrics is not None:
+        require(isinstance(surface_metrics, dict), "surface_metrics must be an object")
+        require(surface_metrics.get("methodology") == summary["methodology"], "surface metrics methodology mismatch")
+        require(campaign.canonical(surface_metrics.get("request")) == campaign.canonical(final["request"]),
+                "surface metrics request differs from final campaign")
+        campaign.nonblank(surface_metrics.get("source_reference"), "surface_metrics.source_reference")
+        require(isinstance(surface_metrics.get("rows"), list), "surface_metrics.rows must be a list")
+        for record in surface_metrics["rows"]:
+            require(isinstance(record, dict), "surface metric row must be an object")
+            key = record.get("id")
+            require(type(key) is int and key in ids and key not in metrics_by_id,
+                    "surface metrics contain unknown or duplicate ID")
+            metrics_by_id[key] = contact_metrics(record)
     require(normalized["selected_ids"] == ids, "export roster/order differs from final calculation")
     require(campaign.canonical(normalized["campaign"]["parameters"]) == campaign.canonical(ledger["brief"]["parameters"]),
             "budget/export parameters differ from final calculation")
@@ -76,9 +102,11 @@ def prepare(ledger, model):
                     f"ID {key}: inventory country differs from campaign; retain countryCode and cntry to compare localized names")
         rows.append({"seq": seq, "id": key, "metadata": metadata, "coordinates": source["coordinates"],
                      "media_class": source["media_class"], "availability": source["availability"],
+                     "metrics": metrics_by_id.get(key, {"ots": None, "lts": None}),
                      "warnings": source["warnings"], "source_reference": normalized["inventory_source_reference"]})
     return {"schema_version": 1, "brief": ledger["brief"], "summary": summary,
             "result": final["result"], "rows": rows,
+            "surface_metrics_source_reference": surface_metrics["source_reference"] if surface_metrics is not None else None,
             "budget": {k: v for k, v in normalized.items() if k not in ("rows", "eligible_ids", "excluded_ids")} if requested_budget else None,
             "limitations": summary["limitations"] + ["Availability is unconfirmed."]}
 
