@@ -41,6 +41,47 @@ def write_tiles(directory, groups, zoom=12):
 
 
 class ExportPreparationTests(unittest.TestCase):
+    def test_contacts_preserve_zero_missing_and_campaign_binding(self):
+        ledger, model = fixture()
+        final = ledger["scenarios"][0]
+        final["result"].update(ots=123456, lts=0)
+        model["records"][0]["ots"] = 999999  # Inventory ranking is not campaign contacts.
+        bundle = export.prepare(ledger, model)
+        self.assertEqual(bundle["result"]["ots"], 123456)
+        self.assertEqual(bundle["result"]["lts"], 0)
+        self.assertEqual(bundle["rows"][0]["metrics"], {"ots": None, "lts": None})
+        final["surface_metrics"] = {"methodology": "legacy", "request": deepcopy(final["request"]),
+                                    "source_reference": "per-surface-response.json", "rows": [{"id": 1, "ots": 0, "lts": None}]}
+        bundle = export.prepare(ledger, model)
+        self.assertEqual(bundle["rows"][0]["metrics"], {"ots": 0, "lts": None})
+        self.assertEqual(bundle["rows"][1]["metrics"], {"ots": None, "lts": None})
+        self.assertEqual(bundle["surface_metrics_source_reference"], "per-surface-response.json")
+        for change in (
+            lambda s: s.update(methodology="new_ots"),
+            lambda s: s["request"].update(chrono=20),
+            lambda s: s["request"].update(surfaces=[2, 1]),
+            lambda s: s.update(source_reference=""),
+            lambda s: s["rows"].append({"id": 99, "ots": 1}),
+            lambda s: s["rows"].append({"id": 1, "ots": 1}),
+        ):
+            changed = deepcopy(ledger)
+            change(changed["scenarios"][0]["surface_metrics"])
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                export.prepare(changed, model)
+
+    def test_invalid_contacts_are_rejected_at_campaign_and_surface_scope(self):
+        for value in (-1, True, "123", float("nan"), float("inf"), 1e15):
+            for scope in ("campaign", "surface"):
+                ledger, model = fixture()
+                final = ledger["scenarios"][0]
+                if scope == "campaign":
+                    final["result"]["ots"] = value
+                else:
+                    final["surface_metrics"] = {"methodology": "legacy", "request": deepcopy(final["request"]),
+                                                "source_reference": "test.json", "rows": [{"id": 1, "ots": value}]}
+                with self.subTest(value=value, scope=scope), self.assertRaises(ValueError):
+                    export.prepare(ledger, model)
+
     def test_localized_country_names_use_retained_iso_identity(self):
         ledger, model = fixture()
         ledger["brief"]["parameters"]["countryCode"] = "UZ"
@@ -237,9 +278,16 @@ def saved_fixture(filename, bundle, mutation=None):
                                  if k not in ("city", "periodFrom", "periodTo", "audience")}),
               "B7": 2, "B8": 0.4, "B9": 1267819, "B10": 507127.6, "B13": "0 / 2",
               "B14": "1, 2", "B15": "частичная: Missing basemap", "B16": "Наличие не подтверждено",
-              "B18": "не запрошен"}
+              "B18": "не запрошен", "A21": "OTS: прогноз контактов", "A22": "LTS: прогноз контактов",
+              "B21": bundle["result"].get("ots") if bundle["result"].get("ots") is not None else "n.a.",
+              "B22": bundle["result"].get("lts") if bundle["result"].get("lts") is not None else "n.a.",
+              "B23": {"complete": "полный", "screened": "отобранная часть", "partial": "неполная выгрузка"}[bundle["summary"]["inventory_coverage"]],
+              "B24": "\n".join(bundle["limitations"]), "B25": bundle["summary"]["stop_reason"]}
     s = '<worksheet xmlns="' + ns + '"><sheetData><row r="1">' + ''.join(cell(k, v, "B8*B9" if k == "B10" else None) for k, v in values.items()) + '</row></sheetData></worksheet>'
     a = '<worksheet xmlns="' + ns + '"><sheetViews><sheetView><pane state="frozen"/></sheetView></sheetViews><sheetData>'
+    source = bundle.get("surface_metrics_source_reference")
+    a += '<row r="4">' + cell("A4", "OTS/LTS: " + source if source else "OTS/LTS поверхностей: данные не предоставлены") + '</row>'
+    a += '<row r="5">' + cell("M5", "OTS: прогноз контактов") + cell("N5", "LTS: прогноз контактов") + '</row>'
     for i, row in enumerate(bundle["rows"], 6):
         a += f'<row r="{i}">' + cell(f"A{i}", row["seq"]) + cell(f"B{i}", str(row["id"]))
         for col, value in {"C": row["metadata"].get("address") or "нет адреса в источнике", "D": row["metadata"].get("supplierId"),
@@ -248,6 +296,9 @@ def saved_fixture(filename, bundle, mutation=None):
             a += cell(f"{col}{i}", "" if value is None else str(value))
         if row["coordinates"]:
             a += cell(f"K{i}", row["coordinates"]["lat"]) + cell(f"L{i}", row["coordinates"]["lng"])
+        for col, key in (("M", "ots"), ("N", "lts")):
+            value = row.get("metrics", {}).get(key)
+            a += cell(f"{col}{i}", value if value is not None else "n.a.")
         a += '</row>'
     a += '</sheetData><tableParts><tablePart/></tableParts></worksheet>'
     files = {
@@ -276,6 +327,48 @@ class SavedExportTests(unittest.TestCase):
             file = Path(directory) / "fixture.xlsx"
             saved_fixture(file, bundle)
             self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
+
+    def test_iso_dates_accept_equivalent_midnight_spellings_only(self):
+        for value, valid in (("2026-08-01", True), ("2026-08-01T00:00:00Z", True),
+                             ("2026-08-01T00:00:00.000Z", True), ("2026-08-01T00:00:00+00:00", True),
+                             ("2026-08-02T00:00:00.000Z", False), ("2026-08-01T12:00:00Z", False),
+                             ("2026-08-01T00:00:00.001Z", False), ("2026-08-01T00:00:00+05:00", False)):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                bundle = self.fixture()
+                file = Path(directory) / "dates.xlsx"
+                def mutate(files):
+                    files["xl/worksheets/sheet1.xml"] = files["xl/worksheets/sheet1.xml"].replace(
+                        '<c r="B4"><v>46235</v></c>', f'<c r="B4" t="d"><v>{value}</v></c>')
+                saved_fixture(file, bundle, mutate)
+                if valid:
+                    self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
+                else:
+                    with self.assertRaises(ValueError):
+                        verify.verify(bundle, file)
+
+    def test_contact_and_coverage_tampering_is_rejected(self):
+        import xml.etree.ElementTree as ET
+        for part, ref, value in ((1, "B21", "99"), (1, "B22", "0"), (2, "M6", "99"),
+                                  (2, "N6", "0"), (1, "B23", "полный"), (1, "B24", ""), (1, "B25", "")):
+            with self.subTest(ref=ref), tempfile.TemporaryDirectory() as directory:
+                bundle = self.fixture()
+                bundle["result"]["ots"] = 0
+                bundle["rows"][0]["metrics"]["ots"] = 0
+                bundle["summary"]["inventory_coverage"] = "partial"
+                bundle["limitations"].append("Inventory pool is partial.")
+                file = Path(directory) / "changed.xlsx"
+                saved_fixture(file, bundle)
+                self.assertEqual(verify.verify(bundle, file)["surfaces"], 2)
+                def mutate(files):
+                    key = f"xl/worksheets/sheet{part}.xml"
+                    root = ET.fromstring(files[key])
+                    cell = root.find(f".//s:c[@r='{ref}']", verify.NS)
+                    target = cell.find("s:is/s:t", verify.NS) if cell.attrib.get("t") == "inlineStr" else cell.find("s:v", verify.NS)
+                    target.text = value
+                    files[key] = ET.tostring(root, encoding="unicode")
+                saved_fixture(file, bundle, mutate)
+                with self.assertRaises(ValueError):
+                    verify.verify(bundle, file)
 
     def test_changed_campaign_metadata_and_frequency_are_rejected(self):
         import xml.etree.ElementTree as ET
