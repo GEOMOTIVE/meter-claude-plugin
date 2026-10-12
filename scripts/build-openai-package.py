@@ -11,6 +11,7 @@ args = argparse.ArgumentParser()
 args.add_argument("--check", action="store_true", help="Fail when committed generated files differ")
 check = args.parse_args().check
 source_manifest = json.loads((root / ".claude-plugin/plugin.json").read_text())
+submission = json.loads((root / "chatgpt-app-submission.json").read_text())
 version_file = root / "skills/meter/references/package-version.json"
 version_bytes = (json.dumps({"schema_version": 1, "package": "meter@meter-public", "version": source_manifest["version"]}, indent=2) + "\n").encode()
 if check:
@@ -19,17 +20,21 @@ if check:
 else:
     version_file.write_bytes(version_bytes)
 manifest = {k: source_manifest[k] for k in ("name", "version", "description", "author", "homepage", "repository", "keywords")}
+manifest["description"] = "Plan outdoor advertising with METER: discover OOH/DOOH inventory, calculate projected audience, OTS and Reach, and prepare address programs."
 manifest.update({
     "skills": "./skills/",
     "mcpServers": "./.mcp.json",
     "interface": {
         "displayName": "METER",
         "shortDescription": "OOH audience and planning",
-        "longDescription": "Discover outdoor advertising inventory and calculate projected Universe, OTS and Reach with METER. Requires a METER account and a $599/month Plugin subscription per user per country. Create address-program files when the client supports file authoring.",
-        "developerName": "METER",
+        "longDescription": "METER helps media planners discover OOH/DOOH inventory, calculate projected audience Universe, OTS and Reach, and prepare address programs from validated results. A connected METER account with access to the requested country is required. New OTS coverage varies; unavailable results are disclosed and legacy is used only when the task permits. Spreadsheet exports require file-authoring tools in the client. METER does not book or purchase advertising placements.",
+        "developerName": "GEOMOTIVE",
         "category": "Data & Analytics",
         "capabilities": ["Read"],
         "websiteURL": "https://meter.ad",
+        "supportURL": "https://meter.ad",
+        "privacyPolicyURL": "https://meter.ad/privacy-policy",
+        "termsOfServiceURL": "https://meter.ad/terms-of-service?lang=en",
         "defaultPrompt": [
             "Find OOH/DOOH inventory in my campaign city.",
             "Calculate OTS and Reach for my selected surfaces.",
@@ -40,6 +45,19 @@ manifest.update({
         "logo": "./assets/meter-logo-square.png"
     }
 })
+# Review scenarios are public instructions, not evidence of a passed replay.
+# Credentials and the demo recording URL remain in the secure publisher portal.
+def review_case(case):
+    result = {"description": case["description"], "prompt": case["user_prompt"],
+              "expected_behavior": case["expected_output"]}
+    if case.get("tools_triggered"):
+        result["tools_triggered"] = case["tools_triggered"]
+    return result
+
+manifest["extensions"] = {"com.openai": {"review": {"test_cases": {
+    "positive": [review_case(case) for case in submission["test_cases"]],
+    "negative": [review_case(case) for case in submission["negative_test_cases"]],
+}}}}
 # Only include publisher-approved optional fields when supplied in the source.
 if "license" in source_manifest:
     manifest["license"] = source_manifest["license"]

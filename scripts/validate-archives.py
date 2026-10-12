@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check standalone archives, their references, and reproducible builds."""
 from pathlib import Path, PurePosixPath
+import argparse
 import hashlib
 import json
 import posixpath
@@ -10,8 +11,13 @@ import sys
 import zipfile
 
 root = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--output-dir", type=Path, default=root / "dist")
+parser.add_argument("--chatgpt-name", default="meter")
+args = parser.parse_args()
+out = args.output_dir.resolve()
 version = json.loads((root / ".claude-plugin/plugin.json").read_text())["version"]
-archives = [root / "dist" / f"meter-{kind}-{version}.zip" for kind in ("codex", "openai-skills", "claude")]
+archives = [out / f"meter-{kind}-{version}.zip" for kind in ("codex", "chatgpt", "openai-skills", "claude")]
 hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in archives}
 for archive in archives:
     with zipfile.ZipFile(archive) as z:
@@ -53,6 +59,16 @@ for archive in archives:
                 assert z.read(name) == content, (name, "skill differs from tested source")
         else:
             assert json.loads(z.read(".mcp.json"))["mcpServers"]["meter"]["url"] == "https://mcp.meter.ad/meter/mcp"
-subprocess.run([sys.executable, str(root / "scripts/package-releases.py")], check=True, stdout=subprocess.DEVNULL)
+        if "chatgpt" in archive.name or "codex" in archive.name:
+            source = root / "plugins/meter"
+            assert set(names) == {str(p.relative_to(source)) for p in source.rglob("*") if p.is_file()}
+            for name in names:
+                if "chatgpt" in archive.name and name == ".codex-plugin/plugin.json":
+                    expected_manifest = json.loads((source / name).read_bytes())
+                    expected_manifest["name"] = args.chatgpt_name
+                    assert json.loads(z.read(name)) == expected_manifest, "Only publisher identity may differ"
+                else:
+                    assert z.read(name) == (source / name).read_bytes(), (archive.name, name, "stale package file")
+subprocess.run([sys.executable, str(root / "scripts/package-releases.py"), "--output-dir", str(out), "--chatgpt-name", args.chatgpt_name], check=True, stdout=subprocess.DEVNULL)
 assert hashes == {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in archives}
-print("PASS: 3 standalone archives, safe paths, complete references and reproducible SHA256 hashes")
+print("PASS: 4 standalone archives, preserved publisher identity, complete references and reproducible SHA256 hashes")

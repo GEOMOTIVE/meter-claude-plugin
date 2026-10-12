@@ -36,10 +36,26 @@ openai_manifest = json.loads((root / "plugins/meter/.codex-plugin/plugin.json").
 assert openai_manifest["version"] == manifest["version"]
 assert openai_manifest["interface"]["capabilities"] == ["Read"]
 assert openai_manifest["mcpServers"] == "./.mcp.json"
+interface = openai_manifest["interface"]
+for field in ("websiteURL", "supportURL", "privacyPolicyURL", "termsOfServiceURL"):
+    assert interface[field].startswith("https://"), (field, "required listing URL")
+assert 0 < len(interface["shortDescription"]) <= 30
+assert 0 < len(interface["longDescription"]) <= 4000
+for field in ("logo", "composerIcon"):
+    image = root / "plugins/meter" / interface[field]
+    assert image.is_file() and image.stat().st_size <= 5 * 1024 * 1024, field
 submission = json.loads((root / "chatgpt-app-submission.json").read_text())
 assert len(submission["tools"]) == 16
 assert len(submission["test_cases"]) == 5
 assert len(submission["negative_test_cases"]) == 3
+cases = openai_manifest["extensions"]["com.openai"]["review"]["test_cases"]
+for key, source in (("positive", "test_cases"), ("negative", "negative_test_cases")):
+    assert len(cases[key]) == len(submission[source])
+    for packaged, original in zip(cases[key], submission[source]):
+        assert packaged["prompt"] == original["user_prompt"]
+        assert packaged["expected_behavior"] == original["expected_output"]
+        if key == "positive":
+            assert packaged["tools_triggered"] == original["tools_triggered"]
 assert len(submission["app_info"]["subtitle"]) <= 30
 for tool in submission["tools"].values():
     assert set(tool["annotations"]) == {"readOnlyHint", "openWorldHint", "destructiveHint"}
