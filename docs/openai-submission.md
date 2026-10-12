@@ -1,6 +1,6 @@
 # OpenAI submission preparation
 
-METER uses one **With MCP** submission for the shared ChatGPT/Codex directory. The public endpoint is `https://mcp.meter.ad/meter/mcp`; choose **Universal**. Include the METER skill with its references and assets. Do not use an existing connector identifier in place of the server URL.
+METER uses one complete plugin submission for the shared ChatGPT/Codex directory. Upload the complete `meter-chatgpt-VERSION.zip` to the existing METER publisher draft. It contains `.codex-plugin/plugin.json`, `.mcp.json`, branding assets and the METER skill with its references and helpers. The public endpoint is `https://mcp.meter.ad/meter/mcp`. A separate development connection is not automatically replaced by a directory publication.
 
 ## Prepared files
 
@@ -10,7 +10,11 @@ METER uses one **With MCP** submission for the shared ChatGPT/Codex directory. T
 - [Reviewer test and demo runbook](reviewer-test-runbook.md): the eight submission prompts, acceptance criteria and recording sequence; dedicated-account execution is still pending.
 - [Review findings](openai-review-findings.md): server metadata and privacy review notes.
 
-Build from reviewed source using `python3 scripts/build-openai-package.py`. Check reproducibility with `python3 scripts/build-openai-package.py --check`. Generate ZIP archives using `python3 scripts/package-releases.py`; upload the skills archive in the **Skills** section of the same **With MCP** draft. The skills archive contains `SKILL.md` at its root and the skill's unchanged supporting references and scripts. The portal did not attach the previous archive with a Codex plugin wrapper. Enter the endpoint and OAuth settings separately in the portal; use the Codex archive for local plugin installation.
+Build from reviewed source using `python3 scripts/build-openai-package.py`. Check reproducibility with `python3 scripts/build-openai-package.py --check`. Generate archives using `python3 scripts/package-releases.py --output-dir /absolute/path/outside-the-checkout --chatgpt-name EXISTING_PLUGIN_NAME`, then validate using `python3 scripts/validate-archives.py --output-dir /absolute/path/outside-the-checkout --chatgpt-name EXISTING_PLUGIN_NAME`. In the current portal, choose **Upload new version** on the existing METER plugin and upload the complete ChatGPT archive. The `openai-skills` archive is only a standalone skill; it does not deliver branding or MCP configuration.
+
+Use the exact existing publisher plugin name shown by the portal when updating a migrated app; it may differ from `meter`. The ChatGPT archive preserves that name without changing the Codex marketplace identity. All other package contents are identical and verified. For a new plugin, the default name is `meter`.
+
+The generated manifest includes descriptions, logo/composer icon, four listing URLs and five positive/three negative review scenarios. Review scenarios are instructions, not passed test evidence. The publisher identity comes from the verified identity selected in OpenAI. Preserve existing country targeting, OAuth registration and domain verification. Check **Metadata & Skills** and **MCPs** after importing; uploading a package does not establish that either set of checks passed. Reviewer credentials and the demo URL remain in the secure portal and must not be embedded in the package.
 
 ## Portal field guide
 
@@ -38,7 +42,9 @@ Submit only after server review findings and client tests are resolved. A packag
 
 Version 0.2.1 corrects the upload packaging and a documentation link; hosted tools and calculation instructions are unchanged. Version 0.2.2 adds the corrected calculation and reporting instructions: explicit legacy audience gender, same-method recovery, preserved campaign controls, clear projected metrics, and inventory availability warnings. Version 0.3.0 adds Wallet subscription onboarding and pricing disclosures. For a new upload, build archives from the reviewed version intended for submission, including its current skills and helpers. Earlier release assets are retained unchanged. A package release does not update an existing portal upload or establish that live client replay passed.
 
-## Current scope
+## Historical preparation — September 2026
+
+The following records describe the previous form-based portal. Since October 2026 the portal accepts a complete plugin ZIP; the former skills-only upload procedure does not describe the current submission flow. These records are not a claim about current approval or publication.
 
 On 8 September 2026 a draft was created in the publisher's OpenAI organization using its verified business identity. The portal completed OAuth, discovered all 16 public methods and confirmed **Domain verified** for the public MCP host. Listing text, all 48 annotation justifications, three starter prompts, five positive test cases, three negative test cases and release notes were saved.
 

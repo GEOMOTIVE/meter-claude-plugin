@@ -23,7 +23,7 @@ For missing tools, multiple METER entries, failed calls or version questions, us
 
 ## ChatGPT preparation
 
-METER uses the **With MCP** submission path, with the same public endpoint and the bundled skill. Uploading skills alone does not connect the METER service. The publisher must enter the MCP URL, configure OAuth, verify the domain and complete OpenAI review. This repository is not evidence of directory approval.
+METER's complete OpenAI package includes listing text, logo, the public MCP endpoint and the bundled skill. The publisher uploads the complete `meter-chatgpt-VERSION.zip` to the existing OpenAI plugin, verifies the imported metadata and MCP connection, completes review, and publishes the approved version. Uploading the standalone skills archive alone does not deliver branding or connect the service. This repository is not evidence of directory approval.
 
 For a development connection, use ChatGPT's supported custom MCP/plugin setup and complete OAuth. Then attach METER to the conversation and run the prompts below. Access to custom development connections depends on the workspace and account. Do not assume installing the Codex marketplace automatically creates a ChatGPT connection.
 
